@@ -1,245 +1,7 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recorrido Virtual 360°</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold: #c8a96e;
-      --gold-dim: rgba(200,169,110,0.15);
-      --gold-border: rgba(200,169,110,0.3);
-      --bg: #080808;
-      --text: #f0ece4;
-      --text-dim: rgba(240,236,228,0.45);
-      --text-faint: rgba(240,236,228,0.2);
-      --border: rgba(255,255,255,0.07);
-    }
-
-    * { margin:0; padding:0; box-sizing:border-box; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* LOADING */
-    #loading-screen {
-      position: fixed; inset: 0;
-      background: var(--bg);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 32px;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
-    #loading-screen.hidden { opacity: 0; visibility: hidden; }
-    .loading-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 36px; font-weight: 300;
-      letter-spacing: 6px; text-transform: uppercase;
-    }
-    .loading-logo span { color: var(--gold); }
-    .loading-bar-wrap { width: 200px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
-    .loading-bar { position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: var(--gold); animation: loadbar 1.8s ease forwards; }
-    @keyframes loadbar { 0%{left:-100%} 100%{left:0} }
-    .loading-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); font-weight: 300; }
-
-    /* HEADER */
-    header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 36px;
-      background: linear-gradient(to bottom, rgba(8,8,8,0.95), transparent);
-      pointer-events: none;
-    }
-    .logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; pointer-events: all; }
-    .logo span { color: var(--gold); }
-    .project-info { text-align: center; }
-    .project-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
-    .scene-name { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-weight: 300; margin-top: 3px; transition: all 0.4s; }
-    .header-tag { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 300; }
-
-    /* VISOR */
-    #panorama { width: 100%; height: 100vh; display: block; }
-
-    /* HOTSPOTS NATIVOS — estilo dorado */
-    .pnlm-hotspot-base {
-      background: var(--gold) !important;
-      border-radius: 50% !important;
-      width: 26px !important;
-      height: 26px !important;
-      border: none !important;
-      box-shadow: 0 0 0 4px rgba(200,169,110,0.25), 0 0 0 8px rgba(200,169,110,0.1) !important;
-      cursor: pointer !important;
-      animation: hs-pulse 2.5s ease-out infinite !important;
-    }
-
-    @keyframes hs-pulse {
-      0%   { box-shadow: 0 0 0 0px rgba(200,169,110,0.5), 0 0 0 0px rgba(200,169,110,0.2); }
-      100% { box-shadow: 0 0 0 14px rgba(200,169,110,0), 0 0 0 28px rgba(200,169,110,0); }
-    }
-
-    .pnlm-hotspot-base::after {
-      content: '' !important;
-      position: absolute !important;
-      top: 50% !important; left: 50% !important;
-      transform: translate(-50%, -60%) !important;
-      width: 0 !important; height: 0 !important;
-      border-left: 5px solid transparent !important;
-      border-right: 5px solid transparent !important;
-      border-bottom: 8px solid #080808 !important;
-    }
-
-    .pnlm-tooltip span {
-      background: rgba(8,8,8,0.85) !important;
-      border: 1px solid var(--gold-border) !important;
-      color: var(--text) !important;
-      font-family: 'Outfit', sans-serif !important;
-      font-size: 10px !important;
-      letter-spacing: 2px !important;
-      text-transform: uppercase !important;
-      font-weight: 300 !important;
-      padding: 5px 12px !important;
-      border-radius: 3px !important;
-      white-space: nowrap !important;
-    }
-
-    /* TRANSITION */
-    #transition-overlay {
-      position: fixed; inset: 0; background: var(--bg); z-index: 500;
-      opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
-    }
-    #transition-overlay.active { opacity: 1; pointer-events: all; }
-
-    /* PANEL INFERIOR */
-    .bottom-panel {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: linear-gradient(to top, rgba(8,8,8,0.98) 60%, transparent);
-      padding: 40px 36px 28px;
-    }
-    .scenes-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 14px; font-weight: 400; }
-    .scenes-grid { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .scene-btn {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 18px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 3px; cursor: pointer;
-      transition: all 0.25s;
-      color: var(--text-dim); font-size: 12px;
-      font-weight: 300; letter-spacing: 1px;
-      font-family: 'Outfit', sans-serif;
-    }
-    .scene-btn:hover { background: var(--gold-dim); border-color: var(--gold-border); color: var(--text); }
-    .scene-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-    .scene-num { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--gold); font-weight: 300; opacity: 0.6; }
-    .scene-btn.active .scene-num { opacity: 1; }
-
-    /* FULLSCREEN */
-    .fs-btn {
-      position: fixed; top: 20px; right: 36px; z-index: 101;
-      width: 36px; height: 36px;
-      border: 1px solid var(--border);
-      background: rgba(8,8,8,0.6);
-      border-radius: 3px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-dim); transition: all 0.2s;
-      backdrop-filter: blur(8px);
-    }
-    .fs-btn:hover { border-color: var(--gold-border); color: var(--gold); }
-
-    /* HINTS */
-    .controls-hint {
-      position: fixed; bottom: 100px; right: 36px; z-index: 100;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
-      animation: fadeout-hint 5s forwards 4s;
-    }
-    @keyframes fadeout-hint { to { opacity: 0; pointer-events: none; } }
-    .hint-item { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); }
-    .hint-icon { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-
-    /* RESPONSIVE */
-    @media (max-width: 600px) {
-      header { padding: 16px 20px; }
-      .logo { font-size: 18px; letter-spacing: 2px; }
-      .bottom-panel { padding: 30px 20px 20px; }
-      .scene-btn { padding: 8px 12px; font-size: 11px; }
-      .controls-hint { display: none; }
-      .fs-btn { top: 16px; right: 20px; }
-    }
-
-    /* pannellum overrides */
-    .pnlm-load-box { display: none !important; }
-    .pnlm-compass { display: none !important; }
-    .pnlm-zoom-controls { display: none !important; }
-    .pnlm-fullscreen-toggle-button { display: none !important; }
-  </style>
-</head>
-<body>
-
-<div id="loading-screen">
-  <div class="loading-logo">Renders<span>360</span></div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
-    <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
-    <div class="loading-label">Preparando recorrido</div>
-  </div>
-</div>
-
-<div id="transition-overlay"></div>
-
-<header>
-  <div class="logo">Renders<span>360</span></div>
-  <div class="project-info">
-    <div class="project-name">Casa Rocha</div>
-    <div class="scene-name" id="scene-label">Living / Comedor</div>
-  </div>
-  <div class="header-tag">Tour Virtual</div>
-</header>
-
-<button class="fs-btn" onclick="toggleFS()" title="Pantalla completa">
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M1 5V1H5M9 1H13V5M13 9V13H9M5 13H1V9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-  </svg>
-</button>
-
-<div id="panorama"></div>
-
-<div class="controls-hint">
-  <div class="hint-item"><span class="hint-icon">⟳</span>Arrastrar para girar</div>
-  <div class="hint-item"><span class="hint-icon">⊕</span>Scroll para zoom</div>
-  <div class="hint-item"><span class="hint-icon">↗</span>Click círculo para navegar</div>
-</div>
-
-<div class="bottom-panel">
-  <div class="scenes-label">Ambientes del proyecto</div>
-  <div class="scenes-grid" id="scenes-grid"></div>
-</div>
-
 <script>
-// ═══════════════════════════════════════════════════
-//  CONFIGURACIÓN — editá solo esta sección
-//  img: ruta a tu archivo dentro del repo
-//  pitch/yaw: ángulo inicial de la cámara
-//  hotspots: círculos de navegación dentro del 360
-//    · targetScene: id de la escena destino
-//    · pitch/yaw: posición del círculo en la imagen
-//    · text: etiqueta que aparece al pasar el mouse
-// ═══════════════════════════════════════════════════
-
 const ESCENAS = [
   {
-    id: "living",
-    label: "Living / Comedor",
-    img: "images/living.jpg",
+    id: "living", label: "Living / Comedor", img: "images/living.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
       { targetScene: "cocina",     pitch: -10, yaw: 80,  text: "Cocina" },
@@ -247,38 +9,30 @@ const ESCENAS = [
     ]
   },
   {
-    id: "cocina",
-    label: "Cocina",
-    img: "images/cocina.jpg",
+    id: "cocina", label: "Cocina", img: "images/cocina.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",   pitch: -10, yaw: 180, text: "Living" },
-      { targetScene: "terraza",  pitch: -10, yaw: 90,  text: "Terraza" }
+      { targetScene: "living",  pitch: -10, yaw: 180, text: "Living" },
+      { targetScene: "jardin",  pitch: -10, yaw: 90,  text: "Jardín" }
     ]
   },
   {
-    id: "dormitorio",
-    label: "Dormitorio",
-    img: "images/dormitorio.jpg",
+    id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",  pitch: -10, yaw: 120, text: "Living" },
-      { targetScene: "bano",    pitch: -10, yaw: -30, text: "Baño Suite" }
+      { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
+      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" }
     ]
   },
   {
-    id: "bano",
-    label: "Baño Suite",
-    img: "images/bano.jpg",
+    id: "bano", label: "Baño Suite", img: "images/bano.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
       { targetScene: "dormitorio", pitch: -10, yaw: 180, text: "Dormitorio" }
     ]
   },
   {
-    id: "terraza",
-    label: "Terraza / Jardín",
-    img: "images/jardin.jpg",
+    id: "jardin", label: "Jardín", img: "images/jardin.jpg",
     pitch: 0, yaw: 0,
     hotspots: [
       { targetScene: "cocina", pitch: -10, yaw: 200, text: "Cocina" }
@@ -286,20 +40,45 @@ const ESCENAS = [
   }
 ];
 
-// ═══════════════════════════════════════════════════
-//  MOTOR — no tocar
-// ═══════════════════════════════════════════════════
-
 let visor = null;
 let escenaActual = ESCENAS[0].id;
+let tourIniciado = false;
+
+function entrarAlTour() {
+  const intro = document.getElementById('intro');
+  const loading = document.getElementById('loading-screen');
+  const bar = document.getElementById('loading-bar');
+  intro.classList.add('out');
+  setTimeout(() => {
+    loading.style.opacity = '1';
+    loading.style.visibility = 'visible';
+    bar.style.transition = 'left 1.5s ease';
+    bar.style.left = '0';
+    setTimeout(() => {
+      generarPanel();
+      cargarEscena(ESCENAS[0].id);
+      tourIniciado = true;
+      setTimeout(() => {
+        loading.style.opacity = '0';
+        loading.style.visibility = 'hidden';
+      }, 800);
+    }, 1400);
+  }, 800);
+}
+
+function volverIntro() {
+  if (!tourIniciado) return;
+  document.getElementById('intro').classList.remove('out');
+}
 
 function generarPanel() {
   const grid = document.getElementById('scenes-grid');
+  if (grid.children.length > 0) return;
   ESCENAS.forEach((e, i) => {
     const btn = document.createElement('button');
-    btn.className = 'scene-btn' + (e.id === escenaActual ? ' active' : '');
     btn.id = 'btn-' + e.id;
-    btn.innerHTML = `<span class="scene-num">0${i+1}</span>${e.label}`;
+    btn.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;';
+    btn.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">0${i+1}</span>${e.label}`;
     btn.onclick = () => irA(e.id);
     grid.appendChild(btn);
   });
@@ -308,10 +87,14 @@ function generarPanel() {
 function irA(idEscena) {
   if (idEscena === escenaActual) return;
   const overlay = document.getElementById('transition-overlay');
-  overlay.classList.add('active');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
   setTimeout(() => {
     cargarEscena(idEscena);
-    setTimeout(() => overlay.classList.remove('active'), 350);
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+    }, 350);
   }, 350);
 }
 
@@ -319,66 +102,27 @@ function cargarEscena(idEscena) {
   const escena = ESCENAS.find(e => e.id === idEscena);
   if (!escena) return;
   escenaActual = idEscena;
-
   document.getElementById('scene-label').textContent = escena.label;
-  document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
-  const btnActivo = document.getElementById('btn-' + idEscena);
-  if (btnActivo) btnActivo.classList.add('active');
-
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
-
   const hsConfig = escena.hotspots.map(hs => ({
-    pitch: hs.pitch,
-    yaw: hs.yaw,
-    type: "info",
-    text: hs.text,
+    pitch: hs.pitch, yaw: hs.yaw, type: "info", text: hs.text,
     clickHandlerFunc: () => irA(hs.targetScene),
     clickHandlerArgs: hs.targetScene
   }));
-
   visor = pannellum.viewer('panorama', {
-    type: 'equirectangular',
-    panorama: escena.img,
-    autoLoad: true,
-    autoRotate: -1.5,
-    autoRotateInactivityDelay: 4000,
-    compass: false,
-    showFullscreenCtrl: false,
-    showZoomCtrl: false,
-    pitch: escena.pitch,
-    yaw: escena.yaw,
-    hfov: 100,
-    minHfov: 50,
-    maxHfov: 120,
+    type: 'equirectangular', panorama: escena.img,
+    autoLoad: true, autoRotate: -1.5, autoRotateInactivityDelay: 4000,
+    compass: false, showFullscreenCtrl: false, showZoomCtrl: false,
+    pitch: escena.pitch, yaw: escena.yaw, hfov: 100, minHfov: 50, maxHfov: 120,
     hotSpots: hsConfig,
-    strings: {
-      loadingLabel: "",
-      bylineLabel: "",
-      noPanoramaError: "No se encontró la imagen. Verificá la ruta.",
-      fileAccessError: "No se pudo cargar: %s",
-      genericWebGLError: "Tu navegador no soporta WebGL.",
-      textureSizeError: "Imagen demasiado grande para este dispositivo.",
-      unknownError: "Error desconocido."
-    }
+    strings: { loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
   });
 }
 
 function toggleFS() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
-  } else {
-    document.exitFullscreen();
-  }
+  if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+  else { document.exitFullscreen(); }
 }
-
-window.addEventListener('load', () => {
-  generarPanel();
-  cargarEscena(ESCENAS[0].id);
-  setTimeout(() => {
-    document.getElementById('loading-screen').classList.add('hidden');
-  }, 2000);
-});
 </script>
-
 </body>
 </html>
