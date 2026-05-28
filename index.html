@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recorrido Virtual 360° | Tu Empresa</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .logo span {
+      color: #c8a96e;
+    }
+
+    .project-title {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+    }
+
+    .header-tag {
+      font-size: 11px;
+      background: rgba(200,169,110,0.15);
+      color: #c8a96e;
+      border: 1px solid rgba(200,169,110,0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── VISOR ── */
+    #panorama {
+      width: 100%;
+      height: 75vh;
+      min-height: 480px;
+      position: relative;
+    }
+
+    /* ── PANEL DE ESCENAS ── */
+    .scenes-panel {
+      padding: 28px 32px;
+      background: #0f0f0f;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .scenes-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    .scenes-grid {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .scene-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .scene-btn:hover {
+      background: rgba(200,169,110,0.1);
+      border-color: rgba(200,169,110,0.35);
+      color: #c8a96e;
+    }
+
+    .scene-btn.active {
+      background: rgba(200,169,110,0.15);
+      border-color: #c8a96e;
+      color: #c8a96e;
+    }
+
+    .scene-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ── INFO FOOTER ── */
+    footer {
+      padding: 20px 32px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    footer a {
+      color: rgba(200,169,110,0.6);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: #c8a96e; }
+
+    /* ── INSTRUCCIONES ── */
+    .help-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      pointer-events: none;
+      z-index: 10;
+      white-space: nowrap;
+      animation: fadeout 4s forwards 3s;
+    }
+
+    @keyframes fadeout {
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Renders<span>360</span></div>
+  <div class="project-title">Proyecto — Casa moderna nordelta</div>
+  <div class="header-tag">Recorrido Virtual</div>
+</header>
+
+<!-- ═══════════════════════════════════════
+     VISOR PANNELLUM
+     Pannellum carga la imagen 360 automáticamente.
+     Solo tenés que cambiar "imageSource" en el JS.
+     ═══════════════════════════════════════ -->
+<div style="position:relative;">
+  <div id="panorama"></div>
+  <div class="help-overlay">🖱 Arrastrá para girar · Scroll para zoom</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL DE ESCENAS
+     Agregá o quitá botones según tus ambientes.
+     ═══════════════════════════════════════ -->
+<div class="scenes-panel">
+  <div class="scenes-label">Ambientes</div>
+  <div class="scenes-grid">
+
+    <button class="scene-btn active" onclick="cargarEscena('living', this)">
+      <div class="scene-icon">🛋</div>
+      Living / Comedor
+    </button>
+
+    <button class="scene-btn" onclick="cargarEscena('cocina', this)">
+      <div class="scene-icon">🍳</div>
+      Cocina
+    </button>
+
+    <button class="scene-btn" onclick="cargarEscena('dormitorio', this)">
+      <div class="scene-icon">🛏</div>
+      Dormitorio Principal
+    </button>
+
+    <button class="scene-btn" onclick="cargarEscena('bano', this)">
+      <div class="scene-icon">🚿</div>
+      Baño Suite
+    </button>
+
+    <button class="scene-btn" onclick="cargarEscena('jardin', this)">
+      <div class="scene-icon">🌿</div>
+      Jardin
+    </button>
+
+  </div>
+</div>
+
+<footer>
+  <span>Visualización generada con tecnología de renderizado avanzado</span>
+  <a href="#">Contactar al estudio</a>
+</footer>
+
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  //  CONFIGURACIÓN DE ESCENAS
+  //  → Reemplazá los valores de "imageSource" con los nombres
+  //    reales de tus archivos .jpg (que subiste a la carpeta).
+  //  → Cada escena es un ambiente distinto del proyecto.
+  // ═══════════════════════════════════════════════════════════════
+
+  const escenas = {
+    living: {
+      imageSource: "images/living.jpg",       // ← Cambiá esto
+      pitch: -5,
+      yaw: 0,
+      hfov: 100
+    },
+    cocina: {
+      imageSource: "images/cocina.jpg",       // ← Cambiá esto
+      pitch: -5,
+      yaw: 90,
+      hfov: 100
+    },
+    dormitorio: {
+      imageSource: "images/dormitorio.jpg",   // ← Cambiá esto
+      pitch: -5,
+      yaw: 180,
+      hfov: 100
+    },
+    bano: {
+      imageSource: "images/bano.jpg",         // ← Cambiá esto
+      pitch: -5,
+      yaw: 0,
+      hfov: 110
+    },
+    jardin: {
+      imageSource: "images/jardin.jpg",      // ← Cambiá esto
+      pitch: 0,
+      yaw: 0,
+      hfov: 120
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  //  INICIALIZACIÓN DEL VISOR
+  //  (No necesitás tocar esto)
+  // ═══════════════════════════════════════════════════════════════
+
+  let visor = null;
+
+  function iniciarVisor(escenaId) {
+    const cfg = escenas[escenaId];
+
+    if (visor) {
+      visor.destroy();
+    }
+
+    visor = pannellum.viewer('panorama', {
+      type: 'equirectangular',
+      panorama: cfg.imageSource,
+      autoLoad: true,
+      autoRotate: -2,           // Rotación automática suave
+      autoRotateInactivityDelay: 3000,
+      compass: false,
+      showFullscreenCtrl: true,
+      showZoomCtrl: true,
+      pitch: cfg.pitch,
+      yaw: cfg.yaw,
+      hfov: cfg.hfov,
+      minHfov: 50,
+      maxHfov: 120,
+      strings: {
+        loadingLabel: "Cargando recorrido...",
+        bylineLabel: "",
+        noPanoramaError: "No se encontró la imagen 360°. Verificá la ruta en el archivo HTML.",
+        fileAccessError: "No se pudo cargar: %s",
+        malformedConfig: "Configuración incorrecta.",
+        notUserAction: "La reproducción automática requiere interacción.",
+        genericWebGLError: "Tu navegador no soporta WebGL.",
+        textureSizeError: "La imagen es demasiado grande para este dispositivo.",
+        unknownError: "Error desconocido."
+      }
+    });
+  }
+
+  function cargarEscena(escenaId, btn) {
+    // Actualizar botón activo
+    document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Cargar nueva escena
+    iniciarVisor(escenaId);
+  }
+
+  // Cargar la primera escena al abrir la página
+  iniciarVisor('living');
+</script>
+
+</body>
+</html>
