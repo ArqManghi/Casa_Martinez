@@ -521,14 +521,14 @@ function generarPanel() {
 // Crear hotspot DOM personalizado
 function crearHotspot(hs) {
   const wrap = document.createElement('div');
-  wrap.className = 'info-hotspot';
+  wrap.className = 'custom-hotspot';
   wrap.innerHTML = `
     <div class="hotspot-ring"></div>
     <div class="hotspot-ring hotspot-ring-2"></div>
     <div class="hotspot-core"><div class="hotspot-arrow"></div></div>
     <div class="hotspot-label">${hs.label}</div>
   `;
-  wrap.addEventListener('click', () => irA(hs.targetScene));
+  wrap.addEventListener('click', (e) => { e.stopPropagation(); irA(hs.targetScene); });
   return wrap;
 }
 
@@ -567,8 +567,8 @@ function cargarEscena(idEscena) {
   const hsConfig = escena.hotspots.map(hs => ({
     pitch: hs.pitch,
     yaw: hs.yaw,
-    type: "info",
-    cssClass: "info-hs-wrap",
+    type: "custom",
+    cssClass: "pnlm-hotspot-base",
     createTooltipFunc: () => crearHotspot(hs),
   }));
 
