@@ -13,7 +13,6 @@
       --gold-dim: rgba(200,169,110,0.15);
       --gold-border: rgba(200,169,110,0.3);
       --bg: #080808;
-      --bg2: #101010;
       --text: #f0ece4;
       --text-dim: rgba(240,236,228,0.45);
       --text-faint: rgba(240,236,228,0.2);
@@ -30,10 +29,9 @@
       overflow-x: hidden;
     }
 
-    /* ── LOADING SCREEN ── */
+    /* LOADING */
     #loading-screen {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: var(--bg);
       z-index: 1000;
       display: flex;
@@ -43,323 +41,136 @@
       gap: 32px;
       transition: opacity 0.8s ease, visibility 0.8s;
     }
-
-    #loading-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
+    #loading-screen.hidden { opacity: 0; visibility: hidden; }
     .loading-logo {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 36px;
-      font-weight: 300;
-      letter-spacing: 6px;
-      color: var(--text);
-      text-transform: uppercase;
+      font-size: 36px; font-weight: 300;
+      letter-spacing: 6px; text-transform: uppercase;
     }
-
     .loading-logo span { color: var(--gold); }
+    .loading-bar-wrap { width: 200px; height: 1px; background: var(--border); position: relative; overflow: hidden; }
+    .loading-bar { position: absolute; left: -100%; top: 0; width: 100%; height: 100%; background: var(--gold); animation: loadbar 1.8s ease forwards; }
+    @keyframes loadbar { 0%{left:-100%} 100%{left:0} }
+    .loading-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); font-weight: 300; }
 
-    .loading-bar-wrap {
-      width: 200px;
-      height: 1px;
-      background: var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .loading-bar {
-      position: absolute;
-      left: -100%;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--gold);
-      animation: loadbar 1.8s ease forwards;
-    }
-
-    @keyframes loadbar {
-      0% { left: -100%; }
-      100% { left: 0%; }
-    }
-
-    .loading-label {
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      font-weight: 300;
-    }
-
-    /* ── HEADER ── */
+    /* HEADER */
     header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 20px 36px;
       background: linear-gradient(to bottom, rgba(8,8,8,0.95), transparent);
       pointer-events: none;
     }
-
-    .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      font-weight: 300;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      pointer-events: all;
-    }
-
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; pointer-events: all; }
     .logo span { color: var(--gold); }
+    .project-info { text-align: center; }
+    .project-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 300; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
+    .scene-name { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-weight: 300; margin-top: 3px; transition: all 0.4s; }
+    .header-tag { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); font-weight: 300; }
 
-    .project-info {
-      text-align: center;
+    /* VISOR */
+    #panorama { width: 100%; height: 100vh; display: block; }
+
+    /* HOTSPOTS NATIVOS — estilo dorado */
+    .pnlm-hotspot-base {
+      background: var(--gold) !important;
+      border-radius: 50% !important;
+      width: 26px !important;
+      height: 26px !important;
+      border: none !important;
+      box-shadow: 0 0 0 4px rgba(200,169,110,0.25), 0 0 0 8px rgba(200,169,110,0.1) !important;
+      cursor: pointer !important;
+      animation: hs-pulse 2.5s ease-out infinite !important;
     }
 
-    .project-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 16px;
-      font-weight: 300;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text-dim);
+    @keyframes hs-pulse {
+      0%   { box-shadow: 0 0 0 0px rgba(200,169,110,0.5), 0 0 0 0px rgba(200,169,110,0.2); }
+      100% { box-shadow: 0 0 0 14px rgba(200,169,110,0), 0 0 0 28px rgba(200,169,110,0); }
     }
 
-    .scene-name {
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      font-weight: 300;
-      margin-top: 3px;
-      transition: all 0.4s;
+    .pnlm-hotspot-base::after {
+      content: '' !important;
+      position: absolute !important;
+      top: 50% !important; left: 50% !important;
+      transform: translate(-50%, -60%) !important;
+      width: 0 !important; height: 0 !important;
+      border-left: 5px solid transparent !important;
+      border-right: 5px solid transparent !important;
+      border-bottom: 8px solid #080808 !important;
     }
 
-    .header-tag {
-      font-size: 10px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      font-weight: 300;
-      pointer-events: all;
+    .pnlm-tooltip span {
+      background: rgba(8,8,8,0.85) !important;
+      border: 1px solid var(--gold-border) !important;
+      color: var(--text) !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-size: 10px !important;
+      letter-spacing: 2px !important;
+      text-transform: uppercase !important;
+      font-weight: 300 !important;
+      padding: 5px 12px !important;
+      border-radius: 3px !important;
+      white-space: nowrap !important;
     }
 
-    /* ── VISOR ── */
-    #panorama {
-      width: 100%;
-      height: 100vh;
-      display: block;
+    /* TRANSITION */
+    #transition-overlay {
+      position: fixed; inset: 0; background: var(--bg); z-index: 500;
+      opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
     }
+    #transition-overlay.active { opacity: 1; pointer-events: all; }
 
-    /* ── HOTSPOT PERSONALIZADO ── */
-    .info-hotspot {
-      width: 52px;
-      height: 52px;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .hotspot-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 1px solid rgba(200,169,110,0.6);
-      animation: pulse-ring 2.5s ease-out infinite;
-    }
-
-    .hotspot-ring-2 {
-      animation-delay: 0.8s;
-    }
-
-    @keyframes pulse-ring {
-      0% { transform: scale(0.7); opacity: 0.8; }
-      100% { transform: scale(1.5); opacity: 0; }
-    }
-
-    .hotspot-core {
-      position: absolute;
-      inset: 14px;
-      background: var(--gold);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hotspot-arrow {
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-bottom: 8px solid #080808;
-      margin-top: -1px;
-    }
-
-    .hotspot-label {
-      position: absolute;
-      bottom: -26px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text);
-      white-space: nowrap;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 300;
-      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
-    }
-
-    /* ── PANEL INFERIOR ── */
+    /* PANEL INFERIOR */
     .bottom-panel {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 100;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
       background: linear-gradient(to top, rgba(8,8,8,0.98) 60%, transparent);
       padding: 40px 36px 28px;
     }
-
-    .scenes-label {
-      font-size: 9px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 14px;
-      font-weight: 400;
-    }
-
-    .scenes-grid {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
+    .scenes-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 14px; font-weight: 400; }
+    .scenes-grid { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .scene-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
       padding: 10px 18px;
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
-      border-radius: 3px;
-      cursor: pointer;
+      border-radius: 3px; cursor: pointer;
       transition: all 0.25s;
-      color: var(--text-dim);
-      font-size: 12px;
-      font-weight: 300;
-      letter-spacing: 1px;
+      color: var(--text-dim); font-size: 12px;
+      font-weight: 300; letter-spacing: 1px;
       font-family: 'Outfit', sans-serif;
     }
-
-    .scene-btn:hover {
-      background: var(--gold-dim);
-      border-color: var(--gold-border);
-      color: var(--text);
-    }
-
-    .scene-btn.active {
-      background: var(--gold-dim);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    .scene-num {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 15px;
-      color: var(--gold);
-      font-weight: 300;
-      opacity: 0.6;
-    }
-
+    .scene-btn:hover { background: var(--gold-dim); border-color: var(--gold-border); color: var(--text); }
+    .scene-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+    .scene-num { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--gold); font-weight: 300; opacity: 0.6; }
     .scene-btn.active .scene-num { opacity: 1; }
 
-    /* ── CONTROLS ── */
-    .controls-hint {
-      position: fixed;
-      bottom: 100px;
-      right: 36px;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-      opacity: 1;
-      transition: opacity 0.5s;
-      animation: fadeout-hint 5s forwards 4s;
-    }
-
-    @keyframes fadeout-hint {
-      to { opacity: 0; pointer-events: none; }
-    }
-
-    .hint-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-
-    .hint-icon {
-      width: 24px;
-      height: 24px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    /* ── TRANSITION OVERLAY ── */
-    #transition-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      z-index: 500;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    #transition-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    /* ── FULLSCREEN BTN ── */
+    /* FULLSCREEN */
     .fs-btn {
-      position: fixed;
-      top: 20px;
-      right: 36px;
-      z-index: 101;
-      width: 36px;
-      height: 36px;
+      position: fixed; top: 20px; right: 36px; z-index: 101;
+      width: 36px; height: 36px;
       border: 1px solid var(--border);
       background: rgba(8,8,8,0.6);
-      border-radius: 3px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-dim);
-      transition: all 0.2s;
+      border-radius: 3px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-dim); transition: all 0.2s;
       backdrop-filter: blur(8px);
     }
-
     .fs-btn:hover { border-color: var(--gold-border); color: var(--gold); }
 
-    /* ── RESPONSIVE ── */
+    /* HINTS */
+    .controls-hint {
+      position: fixed; bottom: 100px; right: 36px; z-index: 100;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+      animation: fadeout-hint 5s forwards 4s;
+    }
+    @keyframes fadeout-hint { to { opacity: 0; pointer-events: none; } }
+    .hint-item { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); }
+    .hint-icon { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    /* RESPONSIVE */
     @media (max-width: 600px) {
       header { padding: 16px 20px; }
       .logo { font-size: 18px; letter-spacing: 2px; }
-      .project-name { font-size: 13px; }
       .bottom-panel { padding: 30px 20px 20px; }
       .scene-btn { padding: 8px 12px; font-size: 11px; }
       .controls-hint { display: none; }
@@ -367,7 +178,6 @@
     }
 
     /* pannellum overrides */
-    .pnlm-ui { font-family: 'Outfit', sans-serif !important; }
     .pnlm-load-box { display: none !important; }
     .pnlm-compass { display: none !important; }
     .pnlm-zoom-controls { display: none !important; }
@@ -376,7 +186,6 @@
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
 <div id="loading-screen">
   <div class="loading-logo">Renders<span>360</span></div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
@@ -385,10 +194,8 @@
   </div>
 </div>
 
-<!-- TRANSITION OVERLAY -->
 <div id="transition-overlay"></div>
 
-<!-- HEADER -->
 <header>
   <div class="logo">Renders<span>360</span></div>
   <div class="project-info">
@@ -398,114 +205,94 @@
   <div class="header-tag">Tour Virtual</div>
 </header>
 
-<!-- FULLSCREEN -->
 <button class="fs-btn" onclick="toggleFS()" title="Pantalla completa">
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
     <path d="M1 5V1H5M9 1H13V5M13 9V13H9M5 13H1V9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
   </svg>
 </button>
 
-<!-- VISOR -->
 <div id="panorama"></div>
 
-<!-- HINTS -->
 <div class="controls-hint">
   <div class="hint-item"><span class="hint-icon">⟳</span>Arrastrar para girar</div>
   <div class="hint-item"><span class="hint-icon">⊕</span>Scroll para zoom</div>
-  <div class="hint-item"><span class="hint-icon">↗</span>Click flecha para navegar</div>
+  <div class="hint-item"><span class="hint-icon">↗</span>Click círculo para navegar</div>
 </div>
 
-<!-- PANEL INFERIOR -->
 <div class="bottom-panel">
   <div class="scenes-label">Ambientes del proyecto</div>
-  <div class="scenes-grid" id="scenes-grid">
-    <!-- generado por JS -->
-  </div>
+  <div class="scenes-grid" id="scenes-grid"></div>
 </div>
 
-
 <script>
-// ═══════════════════════════════════════════════════════════════════
-//  CONFIGURACIÓN — EDITÁ SOLO ESTA SECCIÓN
-//  → "id": nombre interno (sin espacios ni tildes)
-//  → "label": nombre que se muestra en pantalla
-//  → "img": nombre del archivo en tu carpeta images/
-//  → "pitch" / "yaw": ángulo inicial de la cámara (pitch= vertical, yaw= horizontal)
-//  → "hotspots": flechas que llevan a otras escenas
-//     · "targetScene": id de la escena a la que va
-//     · "pitch" / "yaw": posición de la flecha DENTRO de la imagen 360
-//     · "label": texto que aparece debajo de la flecha
-// ═══════════════════════════════════════════════════════════════════
-
-const PROYECTO = {
-  nombre: "Casa Rocha",
-  estudio: "BMARQ"
-};
+// ═══════════════════════════════════════════════════
+//  CONFIGURACIÓN — editá solo esta sección
+//  img: ruta a tu archivo dentro del repo
+//  pitch/yaw: ángulo inicial de la cámara
+//  hotspots: círculos de navegación dentro del 360
+//    · targetScene: id de la escena destino
+//    · pitch/yaw: posición del círculo en la imagen
+//    · text: etiqueta que aparece al pasar el mouse
+// ═══════════════════════════════════════════════════
 
 const ESCENAS = [
   {
     id: "living",
     label: "Living / Comedor",
     img: "images/living.jpg",
-    pitch: -5,
-    yaw: 0,
+    pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "cocina",      pitch: -8,  yaw: 85,  label: "Cocina" },
-      { targetScene: "dormitorio",  pitch: -8,  yaw: -60, label: "Dormitorio" }
+      { targetScene: "cocina",     pitch: -10, yaw: 80,  text: "Cocina" },
+      { targetScene: "dormitorio", pitch: -10, yaw: -60, text: "Dormitorio" }
     ]
   },
   {
     id: "cocina",
     label: "Cocina",
     img: "images/cocina.jpg",
-    pitch: -5,
-    yaw: 0,
+    pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",      pitch: -8,  yaw: 180, label: "Living" },
-      { targetScene: "terraza",     pitch: -5,  yaw: 90,  label: "Terraza" }
+      { targetScene: "living",   pitch: -10, yaw: 180, text: "Living" },
+      { targetScene: "terraza",  pitch: -10, yaw: 90,  text: "Terraza" }
     ]
   },
   {
     id: "dormitorio",
     label: "Dormitorio",
     img: "images/dormitorio.jpg",
-    pitch: -5,
-    yaw: 0,
+    pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",      pitch: -8,  yaw: 120, label: "Living" },
-      { targetScene: "bano",        pitch: -8,  yaw: -30, label: "Baño Suite" }
+      { targetScene: "living",  pitch: -10, yaw: 120, text: "Living" },
+      { targetScene: "bano",    pitch: -10, yaw: -30, text: "Baño Suite" }
     ]
   },
   {
     id: "bano",
     label: "Baño Suite",
     img: "images/bano.jpg",
-    pitch: -5,
-    yaw: 0,
+    pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "dormitorio",  pitch: -8,  yaw: 180, label: "Dormitorio" }
+      { targetScene: "dormitorio", pitch: -10, yaw: 180, text: "Dormitorio" }
     ]
   },
   {
-    id: "jardin",
-    label: "Jardin",
+    id: "terraza",
+    label: "Terraza / Jardín",
     img: "images/jardin.jpg",
-    pitch: 0,
-    yaw: 0,
+    pitch: 0, yaw: 0,
     hotspots: [
-      { targetScene: "cocina",      pitch: -8,  yaw: 200, label: "Cocina" }
+      { targetScene: "cocina", pitch: -10, yaw: 200, text: "Cocina" }
     ]
   }
 ];
 
-// ═══════════════════════════════════════════════════════════════════
-//  MOTOR — No necesitás tocar esto
-// ═══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  MOTOR — no tocar
+// ═══════════════════════════════════════════════════
 
 let visor = null;
 let escenaActual = ESCENAS[0].id;
 
-// Generar botones del panel inferior
 function generarPanel() {
   const grid = document.getElementById('scenes-grid');
   ESCENAS.forEach((e, i) => {
@@ -518,61 +305,37 @@ function generarPanel() {
   });
 }
 
-// Crear hotspot DOM personalizado
-function crearHotspot(hs) {
-  const wrap = document.createElement('div');
-  wrap.className = 'custom-hotspot';
-  wrap.innerHTML = `
-    <div class="hotspot-ring"></div>
-    <div class="hotspot-ring hotspot-ring-2"></div>
-    <div class="hotspot-core"><div class="hotspot-arrow"></div></div>
-    <div class="hotspot-label">${hs.label}</div>
-  `;
-  wrap.addEventListener('click', (e) => { e.stopPropagation(); irA(hs.targetScene); });
-  return wrap;
-}
-
-// Navegar con transición
 function irA(idEscena) {
   if (idEscena === escenaActual) return;
-
   const overlay = document.getElementById('transition-overlay');
   overlay.classList.add('active');
-
   setTimeout(() => {
     cargarEscena(idEscena);
-    setTimeout(() => overlay.classList.remove('active'), 300);
-  }, 300);
+    setTimeout(() => overlay.classList.remove('active'), 350);
+  }, 350);
 }
 
-// Cargar escena en Pannellum
 function cargarEscena(idEscena) {
   const escena = ESCENAS.find(e => e.id === idEscena);
   if (!escena) return;
-
   escenaActual = idEscena;
 
-  // Actualizar label header
   document.getElementById('scene-label').textContent = escena.label;
-
-  // Actualizar botones activos
   document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
   const btnActivo = document.getElementById('btn-' + idEscena);
   if (btnActivo) btnActivo.classList.add('active');
 
-  // Destruir visor anterior
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
 
-  // Construir hotspots para Pannellum
   const hsConfig = escena.hotspots.map(hs => ({
     pitch: hs.pitch,
     yaw: hs.yaw,
-    type: "custom",
-    cssClass: "pnlm-hotspot-base",
-    createTooltipFunc: () => crearHotspot(hs),
+    type: "info",
+    text: hs.text,
+    clickHandlerFunc: () => irA(hs.targetScene),
+    clickHandlerArgs: hs.targetScene
   }));
 
-  // Iniciar Pannellum
   visor = pannellum.viewer('panorama', {
     type: 'equirectangular',
     panorama: escena.img,
@@ -600,7 +363,6 @@ function cargarEscena(idEscena) {
   });
 }
 
-// Fullscreen
 function toggleFS() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
@@ -609,11 +371,9 @@ function toggleFS() {
   }
 }
 
-// Init
 window.addEventListener('load', () => {
   generarPanel();
   cargarEscena(ESCENAS[0].id);
-
   setTimeout(() => {
     document.getElementById('loading-screen').classList.add('hidden');
   }, 2000);
