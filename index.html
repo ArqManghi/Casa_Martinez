@@ -521,7 +521,7 @@ function generarPanel() {
 // Crear hotspot DOM personalizado
 function crearHotspot(hs) {
   const wrap = document.createElement('div');
-  wrap.className = 'custom-hotspot';
+  wrap.className = 'info-hotspot';
   wrap.innerHTML = `
     <div class="hotspot-ring"></div>
     <div class="hotspot-ring hotspot-ring-2"></div>
@@ -567,8 +567,8 @@ function cargarEscena(idEscena) {
   const hsConfig = escena.hotspots.map(hs => ({
     pitch: hs.pitch,
     yaw: hs.yaw,
-    type: "custom",
-    cssClass: "custom-hs-wrap",
+    type: "info",
+    cssClass: "info-hs-wrap",
     createTooltipFunc: () => crearHotspot(hs),
   }));
 
