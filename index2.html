@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recorrido Virtual 360°</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+    :root {
+      --gold: #c8a96e;
+      --gold-dim: rgba(200,169,110,0.15);
+      --gold-border: rgba(200,169,110,0.3);
+      --bg: #080808;
+      --text: #f0ece4;
+      --text-dim: rgba(240,236,228,0.45);
+      --text-faint: rgba(240,236,228,0.2);
+      --border: rgba(255,255,255,0.07);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+    #intro {
+      position:fixed; inset:0; z-index:2000;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      overflow:hidden;
+      transition:opacity 1.2s ease, visibility 1.2s;
+    }
+    #intro.out { opacity:0; visibility:hidden; pointer-events:none; }
+    #intro-bg {
+      position:absolute; inset:-5%;
+      background-image:url('images/living.jpg');
+      background-size:cover; background-position:center;
+      filter:brightness(0.28);
+      animation:intro-drift 18s ease-in-out infinite alternate;
+    }
+    @keyframes intro-drift { from{transform:scale(1.05) translateX(0)} to{transform:scale(1.05) translateX(-2%)} }
+    #intro::after {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at center, transparent 30%, rgba(8,8,8,0.7) 100%);
+      pointer-events:none;
+    }
+    .intro-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .intro-line { width:1px; height:60px; background:linear-gradient(to bottom,transparent,var(--gold)); margin-bottom:28px; animation:grow-line 1s ease forwards 0.3s; transform-origin:top; transform:scaleY(0); }
+    @keyframes grow-line { to{transform:scaleY(1)} }
+    .intro-estudio { font-size:11px; font-weight:300; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:20px; opacity:0; animation:fadein 0.8s ease forwards 0.7s; }
+    @keyframes fadein { to{opacity:1} }
+    .intro-divider { width:40px; height:1px; background:rgba(200,169,110,0.4); margin:0 auto 24px; opacity:0; animation:fadein 0.8s ease forwards 0.9s; }
+    .intro-titulo { font-family:'Cormorant Garamond',serif; font-size:clamp(42px,7vw,78px); font-weight:300; line-height:1.1; letter-spacing:2px; color:var(--text); opacity:0; animation:rise 1s ease forwards 1s; }
+    @keyframes rise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .intro-subtitulo { font-family:'Cormorant Garamond',serif; font-size:clamp(16px,2.5vw,22px); font-weight:300; font-style:italic; color:var(--text-dim); margin-top:8px; letter-spacing:2px; opacity:0; animation:fadein 0.8s ease forwards 1.3s; }
+    .intro-meta { margin-top:28px; display:flex; align-items:center; gap:20px; opacity:0; animation:fadein 0.8s ease forwards 1.5s; }
+    .intro-meta-item { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-faint); font-weight:300; }
+    .intro-meta-dot { width:3px; height:3px; border-radius:50%; background:var(--gold-border); }
+    .intro-btn { margin-top:52px; position:relative; cursor:pointer; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:12px; opacity:0; animation:fadein 0.8s ease forwards 1.9s; transition:all 0.3s; }
+    .intro-btn:hover .btn-ring { transform:scale(1.1); border-color:var(--gold); }
+    .intro-btn:hover .btn-label { color:var(--text); letter-spacing:5px; }
+    .btn-ring { width:56px; height:56px; border-radius:50%; border:1px solid rgba(200,169,110,0.5); display:flex; align-items:center; justify-content:center; transition:all 0.4s; }
+    .btn-arrow { width:0; height:0; border-left:7px solid transparent; border-right:7px solid transparent; border-top:10px solid var(--gold); margin-top:3px; }
+    .btn-label { font-size:10px; letter-spacing:4px; text-transform:uppercase; font-weight:300; color:var(--text-dim); transition:all 0.4s; }
+    .intro-line-bottom { width:1px; height:60px; background:linear-gradient(to top,transparent,var(--gold)); margin-top:40px; animation:grow-line-b 1s ease forwards 2s; transform-origin:bottom; transform:scaleY(0); }
+    @keyframes grow-line-b { to{transform:scaleY(1)} }
+    .corner { position:absolute; width:40px; height:40px; opacity:0; animation:fadein 0.8s ease forwards 0.5s; }
+    .corner-tl { top:32px; left:32px; border-top:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
+    .corner-tr { top:32px; right:32px; border-top:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
+    .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
+    .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
+  </style>
+</head>
+<body>
+
+<div id="intro">
+  <div id="intro-bg"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+  <div class="intro-content">
+    <div class="intro-line"></div>
+    <div class="intro-estudio">Arq. Emanuel Manghi</div>
+    <div class="intro-divider"></div>
+    <h1 class="intro-titulo">Casa Martinez</h1>
+    <p class="intro-subtitulo">Recorrido Virtual 360°</p>
+    <div class="intro-meta">
+      <span class="intro-meta-item">5 ambientes</span>
+      <div class="intro-meta-dot"></div>
+      <span class="intro-meta-item">Bahía Blanca</span>
+      <div class="intro-meta-dot"></div>
+      <span class="intro-meta-item">2025</span>
+    </div>
+    <button class="intro-btn" onclick="entrarAlTour()">
+      <div class="btn-ring"><div class="btn-arrow"></div></div>
+      <span class="btn-label">Ingresar</span>
+    </button>
+    <div class="intro-line-bottom"></div>
+  </div>
+</div>
+
+<div id="loading-screen" style="position:fixed;inset:0;background:#080808;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;opacity:0;visibility:hidden;transition:opacity 0.8s ease,visibility 0.8s;">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:#f0ece4;">Renders<span style="color:#c8a96e;">360</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <div style="width:200px;height:1px;background:rgba(255,255,255,0.07);position:relative;overflow:hidden;">
+      <div id="loading-bar" style="position:absolute;left:-100%;top:0;width:100%;height:100%;background:#c8a96e;"></div>
+    </div>
+    <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);font-weight:300;">Cargando recorrido</div>
+  </div>
+</div>
+
+<div id="transition-overlay" style="position:fixed;inset:0;background:#080808;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.35s ease;"></div>
+
+<header style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:4px;text-transform:uppercase;pointer-events:all;cursor:pointer;" onclick="volverIntro()">Renders<span style="color:#c8a96e;">360</span></div>
+  <div style="text-align:center;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);">Casa Martinez</div>
+    <div id="scene-label" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c8a96e;font-weight:300;margin-top:3px;">Living / Comedor</div>
+  </div>
+  <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.45);font-weight:300;">Tour Virtual</div>
+</header>
+
+<div id="panorama" style="width:100%;height:100vh;display:block;"></div>
+
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 28px;">
+  <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
+  <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;"></div>
+</div>
+<script>
+const ESCENAS = [
+  {
+    id: "living", label: "Living / Comedor", img: "images/living.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "cocina",     pitch: -10, yaw: 80,  text: "Cocina" },
+      { targetScene: "dormitorio", pitch: -10, yaw: -60, text: "Dormitorio" }
+    ]
+  },
+  {
+    id: "cocina", label: "Cocina", img: "images/cocina.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "living",  pitch: -10, yaw: 180, text: "Living" },
+      { targetScene: "jardin",  pitch: -10, yaw: 90,  text: "Jardín" }
+    ]
+  },
+  {
+    id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
+      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" }
+    ]
+  },
+  {
+    id: "bano", label: "Baño Suite", img: "images/bano.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "dormitorio", pitch: -10, yaw: 180, text: "Dormitorio" }
+    ]
+  },
+  {
+    id: "jardin", label: "Jardín", img: "images/jardin.jpg",
+    pitch: 0, yaw: 0,
+    hotspots: [
+      { targetScene: "cocina", pitch: -10, yaw: 200, text: "Cocina" }
+    ]
+  }
+];
+
+let visor = null;
+let escenaActual = ESCENAS[0].id;
+let tourIniciado = false;
+
+function entrarAlTour() {
+  const intro = document.getElementById('intro');
+  const loading = document.getElementById('loading-screen');
+  const bar = document.getElementById('loading-bar');
+  intro.classList.add('out');
+  setTimeout(() => {
+    loading.style.opacity = '1';
+    loading.style.visibility = 'visible';
+    bar.style.transition = 'left 1.5s ease';
+    bar.style.left = '0';
+    setTimeout(() => {
+      generarPanel();
+      cargarEscena(ESCENAS[0].id);
+      tourIniciado = true;
+      setTimeout(() => {
+        loading.style.opacity = '0';
+        loading.style.visibility = 'hidden';
+      }, 800);
+    }, 1400);
+  }, 800);
+}
+
+function volverIntro() {
+  if (!tourIniciado) return;
+  document.getElementById('intro').classList.remove('out');
+}
+
+function generarPanel() {
+  const grid = document.getElementById('scenes-grid');
+  if (grid.children.length > 0) return;
+  ESCENAS.forEach((e, i) => {
+    const btn = document.createElement('button');
+    btn.id = 'btn-' + e.id;
+    btn.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;';
+    btn.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">0${i+1}</span>${e.label}`;
+    btn.onclick = () => irA(e.id);
+    grid.appendChild(btn);
+  });
+}
+
+function irA(idEscena) {
+  if (idEscena === escenaActual) return;
+  const overlay = document.getElementById('transition-overlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  setTimeout(() => {
+    cargarEscena(idEscena);
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+    }, 350);
+  }, 350);
+}
+
+function cargarEscena(idEscena) {
+  const escena = ESCENAS.find(e => e.id === idEscena);
+  if (!escena) return;
+  escenaActual = idEscena;
+  document.getElementById('scene-label').textContent = escena.label;
+  if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
+  const hsConfig = escena.hotspots.map(hs => ({
+    pitch: hs.pitch, yaw: hs.yaw, type: "info", text: hs.text,
+    clickHandlerFunc: () => irA(hs.targetScene),
+    clickHandlerArgs: hs.targetScene
+  }));
+  visor = pannellum.viewer('panorama', {
+    type: 'equirectangular', panorama: escena.img,
+    autoLoad: true, autoRotate: -1.5, autoRotateInactivityDelay: 4000,
+    compass: false, showFullscreenCtrl: false, showZoomCtrl: false,
+    pitch: escena.pitch, yaw: escena.yaw, hfov: 100, minHfov: 50, maxHfov: 120,
+    hotSpots: hsConfig,
+    strings: { loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
+  });
+}
+
+function toggleFS() {
+  if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
+  else { document.exitFullscreen(); }
+}
+</script>
+</body>
+</html>
