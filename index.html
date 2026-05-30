@@ -135,6 +135,9 @@
     @media (max-width: 600px) {
       #minimap { left: 16px; bottom: 90px; width: 140px; }
     }
+
+    #lightbox.fullscreen #lb-container { width: min(96vw, 1800px); }
+    #lightbox.fullscreen #lb-img { max-height: 92vh; }
 </style>
 </head>
 <body>
@@ -384,14 +387,13 @@ function abrirLightbox(galeriaId, idx) {
   });
   lbSetImagen(lbIndex, false);
   const lb = document.getElementById('lightbox');
-lb.classList.add('open');
-if (lbGaleriaActual.fullscreen) {
-  lb.classList.add('fullscreen');
-} else {
-  lb.classList.remove('fullscreen');
-  #lightbox.fullscreen #lb-container { width: min(96vw, 1800px); }
-#lightbox.fullscreen #lb-img { max-height: 92vh; }
-}
+  lb.classList.add('open');
+  if (lbGaleriaActual.fullscreen) {
+    lb.classList.add('fullscreen');
+  } else {
+    lb.classList.remove('fullscreen');
+  }
+  document.body.style.overflow = 'hidden';
 }
 
 function cerrarLightbox() {
