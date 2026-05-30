@@ -21,6 +21,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
+    /* ─── INTRO ─────────────────────────────────────── */
     #intro {
       position:fixed; inset:0; z-index:2000;
       display:flex; flex-direction:column;
@@ -67,10 +68,126 @@
     .corner-tr { top:32px; right:32px; border-top:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
     .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
     .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
-  </style>
+
+    /* ─── LIGHTBOX ───────────────────────────────────── */
+    #lightbox {
+      position:fixed; inset:0; z-index:3000;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; visibility:hidden;
+      transition:opacity 0.4s ease, visibility 0.4s;
+    }
+    #lightbox.open { opacity:1; visibility:visible; }
+
+    #lb-backdrop {
+      position:absolute; inset:0;
+      background:rgba(6,6,6,0.92);
+      backdrop-filter:blur(12px);
+      cursor:pointer;
+    }
+
+    #lb-container {
+      position:relative; z-index:1;
+      width:min(92vw, 1100px);
+      max-height:92vh;
+      display:flex; flex-direction:column;
+      transform:translateY(18px) scale(0.97);
+      transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
+    }
+    #lightbox.open #lb-container { transform:translateY(0) scale(1); }
+
+    /* Header del lightbox */
+    #lb-header {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      padding:0 0 16px;
+      border-bottom:1px solid rgba(200,169,110,0.18);
+      margin-bottom:20px;
+    }
+    #lb-title-block {}
+    #lb-eyebrow {
+      font-size:9px; letter-spacing:4px; text-transform:uppercase;
+      color:var(--gold); font-weight:300; margin-bottom:6px;
+    }
+    #lb-title {
+      font-family:'Cormorant Garamond',serif;
+      font-size:clamp(22px,3.5vw,32px); font-weight:300;
+      letter-spacing:1px; color:var(--text);
+    }
+    #lb-counter {
+      font-family:'Cormorant Garamond',serif;
+      font-size:13px; color:var(--text-dim); letter-spacing:2px;
+    }
+    #lb-close {
+      background:none; border:none; cursor:pointer;
+      width:38px; height:38px;
+      border:1px solid rgba(200,169,110,0.25);
+      border-radius:2px;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.25s;
+      margin-left:20px;
+      flex-shrink:0;
+    }
+    #lb-close:hover { border-color:var(--gold); background:rgba(200,169,110,0.08); }
+    #lb-close svg { width:14px; height:14px; stroke:var(--gold); stroke-width:1.5; }
+
+    /* Imagen */
+    #lb-img-wrap {
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.05);
+      background:#0e0e0e;
+    }
+    #lb-img {
+      width:100%; max-height:65vh;
+      object-fit:contain; display:block;
+      transition:opacity 0.3s ease;
+    }
+    #lb-img.fade { opacity:0; }
+
+    /* Navegación lateral */
+    .lb-nav {
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(8,8,8,0.7); border:1px solid rgba(200,169,110,0.2);
+      width:44px; height:44px; border-radius:2px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.25s;
+      z-index:2;
+    }
+    .lb-nav:hover { background:rgba(200,169,110,0.12); border-color:var(--gold); }
+    .lb-nav svg { width:16px; height:16px; stroke:var(--gold); stroke-width:1.5; fill:none; }
+    #lb-prev { left:12px; }
+    #lb-next { right:12px; }
+
+    /* Caption / Descripción */
+    #lb-caption {
+      margin-top:16px;
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:20px;
+    }
+    #lb-caption-text {
+      font-size:12px; font-weight:300; line-height:1.6;
+      color:var(--text-dim); letter-spacing:0.3px;
+      max-width:70%;
+    }
+
+    /* Thumbnails */
+    #lb-thumbs {
+      display:flex; gap:8px; align-items:center; flex-shrink:0;
+    }
+    .lb-thumb {
+      width:52px; height:36px; object-fit:cover;
+      border:1px solid rgba(255,255,255,0.07);
+      cursor:pointer; opacity:0.45;
+      transition:all 0.25s;
+      border-radius:1px;
+    }
+    .lb-thumb.active { opacity:1; border-color:var(--gold); }
+    .lb-thumb:hover:not(.active) { opacity:0.7; }
+</style>
 </head>
 <body>
 
+<!-- INTRO -->
 <div id="intro">
   <div id="intro-bg"></div>
   <div class="corner corner-tl"></div>
@@ -98,6 +215,7 @@
   </div>
 </div>
 
+<!-- LOADING -->
 <div id="loading-screen" style="position:fixed;inset:0;background:#080808;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;opacity:0;visibility:hidden;transition:opacity 0.8s ease,visibility 0.8s;">
   <div style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:#f0ece4;">Renders<span style="color:#c8a96e;">360</span></div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
@@ -108,8 +226,10 @@
   </div>
 </div>
 
+<!-- OVERLAY DE TRANSICIÓN -->
 <div id="transition-overlay" style="position:fixed;inset:0;background:#080808;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.35s ease;"></div>
 
+<!-- HEADER -->
 <header style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;">
   <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:4px;text-transform:uppercase;pointer-events:all;cursor:pointer;" onclick="volverIntro()">Renders<span style="color:#c8a96e;">360</span></div>
   <div style="text-align:center;">
@@ -119,35 +239,154 @@
   <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.45);font-weight:300;">Tour Virtual</div>
 </header>
 
+<!-- PANORAMA -->
 <div id="panorama" style="width:100%;height:100vh;display:block;"></div>
 
+<!-- PANEL INFERIOR -->
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 28px;">
   <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
   <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;"></div>
 </div>
+
+<!-- ─── LIGHTBOX ─────────────────────────────────────────── -->
+<div id="lightbox">
+  <div id="lb-backdrop" onclick="cerrarLightbox()"></div>
+  <div id="lb-container">
+    <div id="lb-header">
+      <div id="lb-title-block">
+        <div id="lb-eyebrow">Detalle constructivo</div>
+        <div id="lb-title">Parrilla &amp; Pergola</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div id="lb-counter">01 / 02</div>
+        <button id="lb-close" onclick="cerrarLightbox()" title="Cerrar">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="lb-img-wrap">
+      <img id="lb-img" src="" alt="Detalle parrilla"/>
+      <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)" title="Anterior">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="lb-nav" id="lb-next" onclick="lbNav(1)" title="Siguiente">
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div id="lb-caption">
+      <div id="lb-caption-text"></div>
+      <div id="lb-thumbs"></div>
+    </div>
+  </div>
+</div>
+
 <script>
+
+/* ─── DATOS DEL LIGHTBOX ─────────────────────────── */
+const LB_ITEMS = [
+  {
+    src: "images/casa-martinez.png",
+    caption: "Vista exterior del jardín. Pérgola de estructura metálica con vigas en voladizo. Parrilla integrada a la medianera con revestimiento de ladrillo visto refractario."
+  },
+  {
+    src: "images/parrilladetalle.png",
+    caption: "Lámina técnica. Corte transversal, vista frontal y planta de la parrilla. Medidas generales: 1.60 × 0.85 × 2.25 m. Pulmón y conducto de humo mínimo 0.20 × 0.20 m."
+  }
+];
+
+let lbIndex = 0;
+
+function abrirLightbox(idx) {
+  lbIndex = idx ?? 0;
+  renderLbThumbs();
+  lbSetImagen(lbIndex, false);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lbNav(dir) {
+  const next = (lbIndex + dir + LB_ITEMS.length) % LB_ITEMS.length;
+  lbSetImagen(next, true);
+}
+
+function lbSetImagen(idx, animate) {
+  const img = document.getElementById('lb-img');
+  const counter = document.getElementById('lb-counter');
+  const caption = document.getElementById('lb-caption-text');
+
+  if (animate) {
+    img.classList.add('fade');
+    setTimeout(() => {
+      img.src = LB_ITEMS[idx].src;
+      img.onload = () => img.classList.remove('fade');
+      caption.textContent = LB_ITEMS[idx].caption;
+      lbIndex = idx;
+      counter.textContent = String(idx + 1).padStart(2,'0') + ' / ' + String(LB_ITEMS.length).padStart(2,'0');
+      actualizarThumbs();
+    }, 280);
+  } else {
+    img.src = LB_ITEMS[idx].src;
+    caption.textContent = LB_ITEMS[idx].caption;
+    lbIndex = idx;
+    counter.textContent = String(idx + 1).padStart(2,'0') + ' / ' + String(LB_ITEMS.length).padStart(2,'0');
+    actualizarThumbs();
+  }
+}
+
+function renderLbThumbs() {
+  const wrap = document.getElementById('lb-thumbs');
+  if (wrap.children.length > 0) return;
+  LB_ITEMS.forEach((item, i) => {
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.className = 'lb-thumb' + (i === lbIndex ? ' active' : '');
+    img.onclick = () => lbSetImagen(i, true);
+    wrap.appendChild(img);
+  });
+}
+
+function actualizarThumbs() {
+  const thumbs = document.querySelectorAll('.lb-thumb');
+  thumbs.forEach((t, i) => t.classList.toggle('active', i === lbIndex));
+}
+
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarLightbox();
+  if (e.key === 'ArrowRight') { if (document.getElementById('lightbox').classList.contains('open')) lbNav(1); }
+  if (e.key === 'ArrowLeft')  { if (document.getElementById('lightbox').classList.contains('open')) lbNav(-1); }
+});
+
+/* ─── ESCENAS ────────────────────────────────────── */
 const ESCENAS = [
   {
     id: "living", label: "Living / Comedor", img: "images/living.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "cocina",     pitch: -15.5, yaw: -114.5,  text: "Cocina" },
-      { targetScene: "jardin", pitch: -12.7, yaw: 82.2, text: "Jardin" }
+      { targetScene: "cocina",  pitch: -15.5, yaw: -114.5, text: "Cocina" },
+      { targetScene: "jardin",  pitch: -12.7, yaw: 82.2,   text: "Jardin" }
     ]
   },
   {
     id: "cocina", label: "Cocina", img: "images/cocina.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",  pitch: 1.5, yaw: 169.4, text: "Living" },
+      { targetScene: "living", pitch: 1.5, yaw: 169.4, text: "Living" }
     ]
   },
   {
     id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
-      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" }
+      { targetScene: "living", pitch: -10, yaw: 120,  text: "Living" },
+      { targetScene: "bano",   pitch: -10, yaw: -30,  text: "Baño Suite" }
     ]
   },
   {
@@ -162,6 +401,15 @@ const ESCENAS = [
     pitch: 0, yaw: 0,
     hotspots: [
       { targetScene: "living", pitch: 0.3, yaw: 9.1, text: "Living" }
+    ],
+    /* hotspot especial → abre lightbox */
+    hotspotsLightbox: [
+      {
+        pitch: -8,
+        yaw: -62,
+        text: "Parrilla · Ver detalle",
+        lightboxIndex: 0
+      }
     ]
   }
 ];
@@ -170,6 +418,53 @@ let visor = null;
 let escenaActual = ESCENAS[0].id;
 let tourIniciado = false;
 
+/* ─── PANNELLUM CUSTOM HOTSPOT ───────────────────── */
+function crearHotspotLightbox(hotSpotDiv, args) {
+  hotSpotDiv.classList.add('pnlm-hotspot-base');
+  hotSpotDiv.style.cssText = `
+    width:auto; height:auto; padding:7px 14px;
+    background:rgba(8,8,8,0.78);
+    border:1px solid rgba(200,169,110,0.55);
+    border-radius:2px;
+    font-family:'Outfit',sans-serif;
+    font-size:11px; font-weight:300;
+    letter-spacing:2px; text-transform:uppercase;
+    color:#c8a96e;
+    cursor:pointer;
+    white-space:nowrap;
+    display:flex; align-items:center; gap:8px;
+    backdrop-filter:blur(6px);
+    transition:all 0.25s;
+    pointer-events:all;
+  `;
+
+  /* ícono pequeño */
+  const icon = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  icon.setAttribute('viewBox','0 0 24 24');
+  icon.setAttribute('width','13'); icon.setAttribute('height','13');
+  icon.style.cssText = 'fill:none;stroke:#c8a96e;stroke-width:1.6;flex-shrink:0;';
+  icon.innerHTML = '<rect x="3" y="3" width="18" height="14" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>';
+  hotSpotDiv.appendChild(icon);
+
+  const label = document.createElement('span');
+  label.textContent = args.text || 'Ver detalle';
+  hotSpotDiv.appendChild(label);
+
+  hotSpotDiv.addEventListener('mouseenter', () => {
+    hotSpotDiv.style.background = 'rgba(200,169,110,0.12)';
+    hotSpotDiv.style.borderColor = '#c8a96e';
+  });
+  hotSpotDiv.addEventListener('mouseleave', () => {
+    hotSpotDiv.style.background = 'rgba(8,8,8,0.78)';
+    hotSpotDiv.style.borderColor = 'rgba(200,169,110,0.55)';
+  });
+  hotSpotDiv.addEventListener('click', (e) => {
+    e.stopPropagation();
+    abrirLightbox(args.lightboxIndex || 0);
+  });
+}
+
+/* ─── CORE ───────────────────────────────────────── */
 function entrarAlTour() {
   const intro = document.getElementById('intro');
   const loading = document.getElementById('loading-screen');
@@ -230,24 +525,39 @@ function cargarEscena(idEscena) {
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
-  const hsConfig = escena.hotspots.map(hs => ({
+
+  /* hotspots de navegación */
+  const hsConfig = (escena.hotspots || []).map(hs => ({
     pitch: hs.pitch, yaw: hs.yaw, type: "info", text: hs.text,
     clickHandlerFunc: () => irA(hs.targetScene),
     clickHandlerArgs: hs.targetScene
   }));
+
+  /* hotspots de lightbox (custom) */
+  const hsLb = (escena.hotspotsLightbox || []).map(hs => ({
+    pitch: hs.pitch, yaw: hs.yaw,
+    type: "custom",
+    text: hs.text,
+    cssClass: "hs-lightbox",
+    createTooltipFunc: crearHotspotLightbox,
+    createTooltipArgs: { text: hs.text, lightboxIndex: hs.lightboxIndex }
+  }));
+
   visor = pannellum.viewer('panorama', {
     type: 'equirectangular', panorama: escena.img,
     autoLoad: true, autoRotate: -1.5, autoRotateInactivityDelay: 4000,
     compass: false, showFullscreenCtrl: false, showZoomCtrl: false,
     pitch: escena.pitch, yaw: escena.yaw, hfov: 100, minHfov: 50, maxHfov: 120,
-    hotSpots: hsConfig,
-    strings: { loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
+    hotSpots: [...hsConfig, ...hsLb],
+    strings: {
+      loadingLabel:"", bylineLabel:"",
+      noPanoramaError:"No se encontró la imagen.",
+      fileAccessError:"No se pudo cargar: %s",
+      genericWebGLError:"WebGL no soportado.",
+      textureSizeError:"Imagen demasiado grande.",
+      unknownError:"Error desconocido."
+    }
   });
-}
-
-function toggleFS() {
-  if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
-  else { document.exitFullscreen(); }
 }
 </script>
 </body>
