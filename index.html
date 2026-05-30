@@ -183,6 +183,36 @@
     }
     .lb-thumb.active { opacity:1; border-color:var(--gold); }
     .lb-thumb:hover:not(.active) { opacity:0.7; }
+
+    /* ─── HOTSPOT LIGHTBOX — override Pannellum ─────── */
+    /* Ocultar el círculo azul default */
+    .hs-lightbox-btn.pnlm-hotspot-base {
+      background: rgba(8,8,8,0.82) !important;
+      border: 1px solid rgba(200,169,110,0.55) !important;
+      border-radius: 2px !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 7px 14px !important;
+      font-family: 'Outfit', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 300 !important;
+      letter-spacing: 2px !important;
+      text-transform: uppercase !important;
+      color: #c8a96e !important;
+      white-space: nowrap !important;
+      backdrop-filter: blur(6px) !important;
+      transition: background 0.25s, border-color 0.25s !important;
+      cursor: pointer !important;
+      /* Pannellum centra con margin negativo; reseteamos para que no arrastre */
+      margin: 0 !important;
+      transform: translate(-50%, -50%) !important;
+    }
+    .hs-lightbox-btn.pnlm-hotspot-base:hover {
+      background: rgba(200,169,110,0.12) !important;
+      border-color: #c8a96e !important;
+    }
+    /* Ocultar el tooltip de texto que genera Pannellum al hacer hover */
+    .hs-lightbox-btn .pnlm-tooltip { display: none !important; }
 </style>
 </head>
 <body>
@@ -405,8 +435,8 @@ const ESCENAS = [
     /* hotspot especial → abre lightbox */
     hotspotsLightbox: [
       {
-        pitch: -1,
-        yaw: -32.3,
+        pitch: -8,
+        yaw: -62,
         text: "Parrilla · Ver detalle",
         lightboxIndex: 0
       }
@@ -533,14 +563,16 @@ function cargarEscena(idEscena) {
     clickHandlerArgs: hs.targetScene
   }));
 
-  /* hotspots de lightbox (custom) */
+  /* hotspots de lightbox — type:"info" para anclaje esférico correcto.
+     El click se intercepta con clickHandlerFunc para abrir el lightbox.
+     CSS override via .hs-lightbox-btn en el <style> global. */
   const hsLb = (escena.hotspotsLightbox || []).map(hs => ({
     pitch: hs.pitch, yaw: hs.yaw,
-    type: "custom",
+    type: "info",
     text: hs.text,
-    cssClass: "hs-lightbox",
-    createTooltipFunc: crearHotspotLightbox,
-    createTooltipArgs: { text: hs.text, lightboxIndex: hs.lightboxIndex }
+    cssClass: "hs-lightbox-btn",
+    clickHandlerFunc: (_e, args) => { abrirLightbox(args.lightboxIndex || 0); },
+    clickHandlerArgs: { lightboxIndex: hs.lightboxIndex }
   }));
 
   visor = pannellum.viewer('panorama', {
