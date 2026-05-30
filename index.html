@@ -273,6 +273,7 @@ const GALERIAS = {
   "planta": {
   eyebrow: "Proyecto",
   titulo: "Planta del proyecto",
+  fullscreen: true,
   items: [
     { src: "images/plano-martinez.png", caption: "Planta general del proyecto. Casa Martinez." }
   ]
@@ -382,8 +383,15 @@ function abrirLightbox(galeriaId, idx) {
     document.getElementById('lb-thumbs').appendChild(t);
   });
   lbSetImagen(lbIndex, false);
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  const lb = document.getElementById('lightbox');
+lb.classList.add('open');
+if (lbGaleriaActual.fullscreen) {
+  lb.classList.add('fullscreen');
+} else {
+  lb.classList.remove('fullscreen');
+  #lightbox.fullscreen #lb-container { width: min(96vw, 1800px); }
+#lightbox.fullscreen #lb-img { max-height: 92vh; }
+}
 }
 
 function cerrarLightbox() {
