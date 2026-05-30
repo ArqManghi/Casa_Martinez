@@ -317,6 +317,41 @@
 </div>
  
 <script>
+
+  <div id="lightbox">
+  <div id="lb-backdrop" onclick="cerrarLightbox()"></div>
+  <div id="lb-container">
+    <div id="lb-header">
+      <div id="lb-title-block">
+        <div id="lb-eyebrow">cocina-martinez-día</div>
+        <div id="lb-title">Cocina &amp; Detalle</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div id="lb-counter">01 / 02</div>
+        <button id="lb-close" onclick="cerrarLightbox()" title="Cerrar">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+ 
+    <div id="lb-img-wrap">
+      <img id="lb-img" src="" alt="cocina.martinez-día"/>
+      <button class="lb-nav" id="lb-prev" onclick="lbNav(-1)" title="Anterior">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="lb-nav" id="lb-next" onclick="lbNav(1)" title="Siguiente">
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+ 
+    <div id="lb-caption">
+      <div id="lb-caption-text"></div>
+      <div id="lb-thumbs"></div>
+    </div>
+  </div>
+</div>
+ 
+<script>
  
 /* ─── LIGHTBOX DATA ──────────────────────────────── */
 const LB_ITEMS = [
@@ -327,6 +362,19 @@ const LB_ITEMS = [
   {
     src: "images/parrilladetalle.png",
     caption: "Lámina técnica. Corte transversal, vista frontal y planta de la parrilla. Medidas generales: 1.60 × 0.85 × 2.25 m. Pulmón y conducto de humo mínimo 0.20 × 0.20 m."
+  }
+  const LB_ITEMS = [
+  {
+    src: "images/cocina-martinez-día.png",
+    caption: "Vista interior de la cocina. Esla central. Revestimientos Dekton y porcellanato."
+  },
+  {
+    src: "images/cocina-martinez-noche.png",
+    caption: "Vista interior de la cocina. Esla central. Revestimientos Dekton y porcellanato."
+  },
+  {
+    src: "images/cocinadetalle.png",
+    caption: "Lámina técnica con materiales y texturas."
   }
 ];
  
@@ -433,6 +481,7 @@ const ESCENAS = [
     ],
     hotspotsLightbox: [
       { pitch: -2.9, yaw: -33.0, text: "Parrilla · Ver detalle", lightboxIndex: 0 }
+      { pitch: -2.9, yaw: -33.0, text: "Cocina · Ver detalle", lightboxIndex: 0 }
     ]
   }
 ];
