@@ -5,32 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recorrido Virtual 360°</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js">
-/* ── MINI MAPA ── */
-const MINIMAP_POS = {
-  "living":      { x: 58, y: 50 },
-  "cocina":      { x: 45, y: 15 },
-  "dormitorio":  { x: 15, y: 30 },
-  "bano":        { x: 15, y: 30 },
-  "jardin":      { x: 80, y: 45 }
-};
-
-function actualizarMinimap(idEscena) {
-  const pos = MINIMAP_POS[idEscena];
-  if (!pos) return;
-  const dot = document.getElementById('minimap-dot');
-  const nameEl = document.getElementById('minimap-scene-name');
-  const escena = ESCENAS.find(e => e.id === idEscena);
-  if (dot) { dot.style.left = pos.x + '%'; dot.style.top = pos.y + '%'; }
-  if (nameEl && escena) nameEl.textContent = escena.label;
-}
-
-function toggleMinimap() {
-  const mm = document.getElementById('minimap');
-  const btn = document.getElementById('minimap-toggle');
-  mm.classList.toggle('collapsed');
-  btn.textContent = mm.classList.contains('collapsed') ? '+' : '—';
-}
-
 </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
@@ -338,6 +312,33 @@ const ESCENAS = [
     ]
   }
 ];
+
+
+/* ── MINI MAPA ── */
+const MINIMAP_POS = {
+  "living":      { x: 58, y: 50 },
+  "cocina":      { x: 45, y: 15 },
+  "dormitorio":  { x: 15, y: 30 },
+  "bano":        { x: 15, y: 30 },
+  "jardin":      { x: 80, y: 45 }
+};
+
+function actualizarMinimap(idEscena) {
+  const pos = MINIMAP_POS[idEscena];
+  if (!pos) return;
+  const dot = document.getElementById('minimap-dot');
+  const nameEl = document.getElementById('minimap-scene-name');
+  const escena = ESCENAS.find(e => e.id === idEscena);
+  if (dot) { dot.style.left = pos.x + '%'; dot.style.top = pos.y + '%'; }
+  if (nameEl && escena) nameEl.textContent = escena.label;
+}
+
+function toggleMinimap() {
+  const mm = document.getElementById('minimap');
+  const btn = document.getElementById('minimap-toggle');
+  mm.classList.toggle('collapsed');
+  btn.textContent = mm.classList.contains('collapsed') ? '+' : '—';
+}
 
 /* ═══════════════════════════════════════════════════════
    MOTOR — no tocar
