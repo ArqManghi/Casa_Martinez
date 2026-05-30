@@ -133,7 +133,42 @@
     #minimap.collapsed #minimap-img-wrap { display: none; }
     #minimap.collapsed #minimap-scene-name { display: none; }
     @media (max-width: 600px) {
-      #minimap { left: 16px; bottom: 90px; width: 140px; }
+      /* ── INTRO ── */
+      .intro-line, .intro-line-bottom { height: 36px; }
+      .intro-estudio { font-size: 10px; letter-spacing: 3px; margin-bottom: 14px; }
+      .intro-titulo { font-size: clamp(32px, 10vw, 52px); }
+      .intro-subtitulo { font-size: 14px; }
+      .intro-meta { gap: 12px; margin-top: 20px; }
+      .intro-meta-item { font-size: 9px; letter-spacing: 1.5px; }
+      .intro-btn { margin-top: 36px; }
+      .corner { width: 24px; height: 24px; }
+      .corner-tl { top: 16px; left: 16px; }
+      .corner-tr { top: 16px; right: 16px; }
+      .corner-bl { bottom: 16px; left: 16px; }
+      .corner-br { bottom: 16px; right: 16px; }
+
+      /* ── HEADER ── */
+      header { padding: 14px 20px !important; }
+
+      /* ── MINI MAPA ── */
+      #minimap { right: 12px; bottom: 88px; width: 130px; padding: 8px; }
+      #minimap-label { font-size: 7px; margin-bottom: 6px; }
+      #minimap-dot { width: 8px; height: 8px; }
+      #minimap-scene-name { font-size: 8px; margin-top: 6px; }
+
+      /* ── PANEL INFERIOR ── */
+      .bottom-panel-wrap { padding: 24px 16px 16px !important; }
+      #scenes-grid button { padding: 8px 12px !important; font-size: 11px !important; }
+
+      /* ── LIGHTBOX ── */
+      #lb-container { width: 96vw !important; max-height: 95vh; }
+      #lb-header { padding: 0 0 10px; margin-bottom: 12px; }
+      #lb-title { font-size: 18px !important; }
+      #lb-caption { flex-direction: column; gap: 10px; }
+      #lb-caption-text { max-width: 100%; font-size: 11px; }
+      #lb-thumbs { flex-wrap: wrap; }
+      .lb-thumb { width: 44px; height: 30px; }
+      .lb-nav { width: 36px; height: 36px; }
     }
 
     #lightbox.fullscreen #lb-container { width: min(96vw, 1400px); }
