@@ -57,7 +57,7 @@
     #lightbox { position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:opacity 0.4s ease, visibility 0.4s; }
     #lightbox.open { opacity:1; visibility:visible; }
     #lb-backdrop { position:absolute; inset:0; background:rgba(6,6,6,0.92); backdrop-filter:blur(12px); cursor:pointer; }
-    #lb-container { position:relative; z-index:1; width:min(92vw,1400px); max-height:80vh; display:flex; flex-direction:column; transform:translateY(18px) scale(0.97); transition:transform 0.45s cubic-bezier(0.22,1,0.36,1); }
+    #lb-container { position:relative; z-index:1; width:min(92vw,1400px); max-height:96vh; display:flex; flex-direction:column; transform:translateY(18px) scale(0.97); transition:transform 0.45s cubic-bezier(0.22,1,0.36,1); overflow:hidden; }
     #lightbox.open #lb-container { transform:translateY(0) scale(1); }
     #lb-header { display:flex; align-items:flex-end; justify-content:space-between; padding:0 0 16px; border-bottom:1px solid rgba(200,169,110,0.18); margin-bottom:20px; }
     #lb-eyebrow { font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--gold); font-weight:300; margin-bottom:6px; }
@@ -67,7 +67,7 @@
     #lb-close:hover { border-color:var(--gold); background:rgba(200,169,110,0.08); }
     #lb-close svg { width:14px; height:14px; stroke:var(--gold); stroke-width:1.5; }
     #lb-img-wrap { position:relative; width:100%; overflow:hidden; border:1px solid rgba(255,255,255,0.05); background:#0e0e0e; }
-    #lb-img { width:100%; max-height:80vh; object-fit:contain; display:block; transition:opacity 0.3s ease; }
+    #lb-img { width:100%; max-height:60vh; object-fit:contain; display:block; transition:opacity 0.3s ease; }
     #lb-img.fade { opacity:0; }
     .lb-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(8,8,8,0.7); border:1px solid rgba(200,169,110,0.2); width:44px; height:44px; border-radius:2px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.25s; z-index:2; }
     .lb-nav:hover { background:rgba(200,169,110,0.12); border-color:var(--gold); }
@@ -171,8 +171,8 @@
       .lb-nav { width: 36px; height: 36px; }
     }
 
-    #lightbox.fullscreen #lb-container { width: min(96vw, 1400px); }
-    #lightbox.fullscreen #lb-img { max-height: 92vh; }
+    #lightbox.fullscreen #lb-container { width: min(96vw, 1600px); }
+    #lightbox.fullscreen #lb-img { max-height: 78vh; }
 </style>
 </head>
 <body>
