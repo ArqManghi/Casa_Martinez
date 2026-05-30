@@ -131,16 +131,15 @@ const ESCENAS = [
     id: "living", label: "Living / Comedor", img: "images/living.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "cocina",     pitch: -10, yaw: 80,  text: "Cocina" },
-      { targetScene: "dormitorio", pitch: -10, yaw: -60, text: "Dormitorio" }
+      { targetScene: "cocina",     pitch: -15.5, yaw: -114.5,  text: "Cocina" },
+      { targetScene: "jardin", pitch: -12.7, yaw: 82.2, text: "Jardin" }
     ]
   },
   {
     id: "cocina", label: "Cocina", img: "images/cocina.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living",  pitch: -10, yaw: 180, text: "Living" },
-      { targetScene: "jardin",  pitch: -10, yaw: 90,  text: "Jardín" }
+      { targetScene: "living",  pitch: 1.5, yaw: 169.4, text: "Living" },
     ]
   },
   {
@@ -162,7 +161,7 @@ const ESCENAS = [
     id: "jardin", label: "Jardín", img: "images/jardin.jpg",
     pitch: 0, yaw: 0,
     hotspots: [
-      { targetScene: "cocina", pitch: -10, yaw: 200, text: "Cocina" }
+      { targetScene: "living", pitch: 0.3, yaw: 9.1, text: "Living" }
     ]
   }
 ];
