@@ -481,7 +481,7 @@ function entrarAlTour() {
     bar.style.transition = 'left 1.5s ease'; bar.style.left = '0';
     setTimeout(() => {
       generarPanel(); cargarEscena(ESCENAS[0].id); tourIniciado = true;
-      setTimeout(() => { loading.style.opacity='0'; loading.style.visibility='hidden'; }, 800);
+      setTimeout(() => { loading.style.opacity='0'; loading.style.visibility='hidden'; document.getElementById('minimap').style.display='block'; }, 800);
     }, 1400);
   }, 800);
 }
