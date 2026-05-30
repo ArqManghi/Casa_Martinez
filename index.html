@@ -184,7 +184,11 @@
     .lb-thumb.active { opacity:1; border-color:var(--gold); }
     .lb-thumb:hover:not(.active) { opacity:0.7; }
 
-    /* ─── HOTSPOT LIGHTBOX — override Pannellum ─────── */
+    /* Pannellum custom hotspot — neutralizar margin automático */
+    .pnlm-container .pnlm-hotspot[style*="translate(-50%,-50%)"] {
+      margin: 0 !important;
+    }
+
     /* Ocultar el círculo azul default */
     .hs-lightbox-btn.pnlm-hotspot-base {
       background: rgba(8,8,8,0.82) !important;
@@ -450,10 +454,11 @@ let tourIniciado = false;
 
 /* ─── PANNELLUM CUSTOM HOTSPOT ───────────────────── */
 function crearHotspotLightbox(hotSpotDiv, args) {
-  hotSpotDiv.classList.add('pnlm-hotspot-base');
   hotSpotDiv.style.cssText = `
-    width:auto; height:auto; padding:7px 14px;
-    background:rgba(8,8,8,0.78);
+    position:absolute;
+    transform:translate(-50%,-50%);
+    padding:7px 14px;
+    background:rgba(8,8,8,0.82);
     border:1px solid rgba(200,169,110,0.55);
     border-radius:2px;
     font-family:'Outfit',sans-serif;
@@ -563,16 +568,12 @@ function cargarEscena(idEscena) {
     clickHandlerArgs: hs.targetScene
   }));
 
-  /* hotspots de lightbox — type:"info" para anclaje esférico correcto.
-     El click se intercepta con clickHandlerFunc para abrir el lightbox.
-     CSS override via .hs-lightbox-btn en el <style> global. */
+  /* hotspots de lightbox — type:"custom" con createTooltipFunc para render propio */
   const hsLb = (escena.hotspotsLightbox || []).map(hs => ({
     pitch: hs.pitch, yaw: hs.yaw,
-    type: "info",
-    text: hs.text,
-    cssClass: "hs-lightbox-btn",
-    clickHandlerFunc: (_e, args) => { abrirLightbox(args.lightboxIndex || 0); },
-    clickHandlerArgs: { lightboxIndex: hs.lightboxIndex }
+    type: "custom",
+    createTooltipFunc: crearHotspotLightbox,
+    createTooltipArgs: { text: hs.text, lightboxIndex: hs.lightboxIndex }
   }));
 
   visor = pannellum.viewer('panorama', {
