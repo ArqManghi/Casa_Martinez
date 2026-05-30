@@ -318,7 +318,7 @@
 
 <script>
 
-/* ─── DATOS DEL LIGHTBOX ─────────────────────────── */
+/* ─── LIGHTBOX DATA ──────────────────────────────── */
 const LB_ITEMS = [
   {
     src: "images/casa-martinez.png",
@@ -351,26 +351,21 @@ function lbNav(dir) {
 }
 
 function lbSetImagen(idx, animate) {
-  const img = document.getElementById('lb-img');
+  const img     = document.getElementById('lb-img');
   const counter = document.getElementById('lb-counter');
   const caption = document.getElementById('lb-caption-text');
-
-  if (animate) {
-    img.classList.add('fade');
-    setTimeout(() => {
-      img.src = LB_ITEMS[idx].src;
-      img.onload = () => img.classList.remove('fade');
-      caption.textContent = LB_ITEMS[idx].caption;
-      lbIndex = idx;
-      counter.textContent = String(idx + 1).padStart(2,'0') + ' / ' + String(LB_ITEMS.length).padStart(2,'0');
-      actualizarThumbs();
-    }, 280);
-  } else {
+  const set = () => {
     img.src = LB_ITEMS[idx].src;
     caption.textContent = LB_ITEMS[idx].caption;
     lbIndex = idx;
-    counter.textContent = String(idx + 1).padStart(2,'0') + ' / ' + String(LB_ITEMS.length).padStart(2,'0');
+    counter.textContent = String(idx+1).padStart(2,'0') + ' / ' + String(LB_ITEMS.length).padStart(2,'0');
     actualizarThumbs();
+  };
+  if (animate) {
+    img.classList.add('fade');
+    setTimeout(() => { set(); img.onload = () => img.classList.remove('fade'); }, 280);
+  } else {
+    set();
   }
 }
 
@@ -378,24 +373,24 @@ function renderLbThumbs() {
   const wrap = document.getElementById('lb-thumbs');
   if (wrap.children.length > 0) return;
   LB_ITEMS.forEach((item, i) => {
-    const img = document.createElement('img');
-    img.src = item.src;
-    img.className = 'lb-thumb' + (i === lbIndex ? ' active' : '');
-    img.onclick = () => lbSetImagen(i, true);
-    wrap.appendChild(img);
+    const t = document.createElement('img');
+    t.src = item.src;
+    t.className = 'lb-thumb' + (i === lbIndex ? ' active' : '');
+    t.onclick = () => lbSetImagen(i, true);
+    wrap.appendChild(t);
   });
 }
 
 function actualizarThumbs() {
-  const thumbs = document.querySelectorAll('.lb-thumb');
-  thumbs.forEach((t, i) => t.classList.toggle('active', i === lbIndex));
+  document.querySelectorAll('.lb-thumb').forEach((t,i) => t.classList.toggle('active', i === lbIndex));
 }
 
-// Cerrar con Escape
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') cerrarLightbox();
-  if (e.key === 'ArrowRight') { if (document.getElementById('lightbox').classList.contains('open')) lbNav(1); }
-  if (e.key === 'ArrowLeft')  { if (document.getElementById('lightbox').classList.contains('open')) lbNav(-1); }
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape')     cerrarLightbox();
+  if (e.key === 'ArrowRight') lbNav(1);
+  if (e.key === 'ArrowLeft')  lbNav(-1);
 });
 
 /* ─── ESCENAS ────────────────────────────────────── */
@@ -419,8 +414,8 @@ const ESCENAS = [
     id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living", pitch: -10, yaw: 120,  text: "Living" },
-      { targetScene: "bano",   pitch: -10, yaw: -30,  text: "Baño Suite" }
+      { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
+      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" }
     ]
   },
   {
@@ -436,14 +431,8 @@ const ESCENAS = [
     hotspots: [
       { targetScene: "living", pitch: 0.3, yaw: 9.1, text: "Living" }
     ],
-    /* hotspot especial → abre lightbox */
     hotspotsLightbox: [
-      {
-        pitch: -8,
-        yaw: -62,
-        text: "Parrilla · Ver detalle",
-        lightboxIndex: 0
-      }
+      { pitch: -8, yaw: -62, text: "Parrilla · Ver detalle", lightboxIndex: 0 }
     ]
   }
 ];
@@ -452,58 +441,109 @@ let visor = null;
 let escenaActual = ESCENAS[0].id;
 let tourIniciado = false;
 
-/* ─── PANNELLUM CUSTOM HOTSPOT ───────────────────── */
-function crearHotspotLightbox(hotSpotDiv, args) {
-  hotSpotDiv.style.cssText = `
-    position:absolute;
-    transform:translate(-50%,-50%);
-    padding:7px 14px;
-    background:rgba(8,8,8,0.82);
-    border:1px solid rgba(200,169,110,0.55);
-    border-radius:2px;
-    font-family:'Outfit',sans-serif;
-    font-size:11px; font-weight:300;
-    letter-spacing:2px; text-transform:uppercase;
-    color:#c8a96e;
-    cursor:pointer;
-    white-space:nowrap;
-    display:flex; align-items:center; gap:8px;
-    backdrop-filter:blur(6px);
-    transition:all 0.25s;
-    pointer-events:all;
-  `;
+/* ─── OVERLAY DE HOTSPOTS LIGHTBOX ──────────────────
+   Proyección esférica manual via RAF.
+   Funciona con cualquier versión de Pannellum.
+──────────────────────────────────────────────────── */
+let lbOverlayRAF = null;
+let lbOverlayItems = [];
 
-  /* ícono pequeño */
-  const icon = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  icon.setAttribute('viewBox','0 0 24 24');
-  icon.setAttribute('width','13'); icon.setAttribute('height','13');
-  icon.style.cssText = 'fill:none;stroke:#c8a96e;stroke-width:1.6;flex-shrink:0;';
-  icon.innerHTML = '<rect x="3" y="3" width="18" height="14" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>';
-  hotSpotDiv.appendChild(icon);
+function iniciarOverlayLightbox(items) {
+  detenerOverlayLightbox();
 
-  const label = document.createElement('span');
-  label.textContent = args.text || 'Ver detalle';
-  hotSpotDiv.appendChild(label);
+  let wrap = document.getElementById('lb-hotspot-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'lb-hotspot-wrap';
+    wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:50;';
+    document.getElementById('panorama').appendChild(wrap);
+  }
+  wrap.innerHTML = '';
+  lbOverlayItems = [];
 
-  hotSpotDiv.addEventListener('mouseenter', () => {
-    hotSpotDiv.style.background = 'rgba(200,169,110,0.12)';
-    hotSpotDiv.style.borderColor = '#c8a96e';
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.style.cssText = [
+      'position:absolute',
+      'pointer-events:all',
+      'transform:translate(-50%,-50%)',
+      'padding:7px 14px',
+      'background:rgba(8,8,8,0.82)',
+      'border:1px solid rgba(200,169,110,0.55)',
+      'border-radius:2px',
+      "font-family:'Outfit',sans-serif",
+      'font-size:11px',
+      'font-weight:300',
+      'letter-spacing:2px',
+      'text-transform:uppercase',
+      'color:#c8a96e',
+      'cursor:pointer',
+      'white-space:nowrap',
+      'display:flex',
+      'align-items:center',
+      'gap:8px',
+      'backdrop-filter:blur(6px)',
+      'transition:background 0.25s,border-color 0.25s',
+      'user-select:none'
+    ].join(';') + ';';
+
+    el.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" style="fill:none;stroke:#c8a96e;stroke-width:1.6;flex-shrink:0"><rect x="3" y="3" width="18" height="14" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>${item.text}</span>`;
+
+    el.addEventListener('mouseenter', () => { el.style.background='rgba(200,169,110,0.12)'; el.style.borderColor='#c8a96e'; });
+    el.addEventListener('mouseleave', () => { el.style.background='rgba(8,8,8,0.82)'; el.style.borderColor='rgba(200,169,110,0.55)'; });
+    el.addEventListener('click', e => { e.stopPropagation(); abrirLightbox(item.lightboxIndex || 0); });
+
+    wrap.appendChild(el);
+    lbOverlayItems.push({ pitch: item.pitch, yaw: item.yaw, el });
   });
-  hotSpotDiv.addEventListener('mouseleave', () => {
-    hotSpotDiv.style.background = 'rgba(8,8,8,0.78)';
-    hotSpotDiv.style.borderColor = 'rgba(200,169,110,0.55)';
+
+  loopOverlay();
+}
+
+function loopOverlay() {
+  if (!visor) { lbOverlayRAF = requestAnimationFrame(loopOverlay); return; }
+
+  const container = document.getElementById('panorama');
+  const W = container.offsetWidth;
+  const H = container.offsetHeight;
+  const hfov   = visor.getHfov();
+  const aspect = W / H;
+  const vfov   = hfov / aspect;
+  const cPitch = visor.getPitch();
+  const cYaw   = visor.getYaw();
+
+  lbOverlayItems.forEach(({ pitch, yaw, el }) => {
+    let dYaw = yaw - cYaw;
+    while (dYaw >  180) dYaw -= 360;
+    while (dYaw < -180) dYaw += 360;
+    const dPitch = pitch - cPitch;
+
+    if (Math.abs(dYaw) > hfov * 0.6 || Math.abs(dPitch) > vfov * 0.6) {
+      el.style.visibility = 'hidden';
+    } else {
+      el.style.visibility = 'visible';
+      const x = W/2 + (dYaw   / (hfov/2)) * (W/2);
+      const y = H/2 - (dPitch / (vfov/2)) * (H/2);
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+    }
   });
-  hotSpotDiv.addEventListener('click', (e) => {
-    e.stopPropagation();
-    abrirLightbox(args.lightboxIndex || 0);
-  });
+
+  lbOverlayRAF = requestAnimationFrame(loopOverlay);
+}
+
+function detenerOverlayLightbox() {
+  if (lbOverlayRAF) { cancelAnimationFrame(lbOverlayRAF); lbOverlayRAF = null; }
+  lbOverlayItems = [];
+  const wrap = document.getElementById('lb-hotspot-wrap');
+  if (wrap) wrap.innerHTML = '';
 }
 
 /* ─── CORE ───────────────────────────────────────── */
 function entrarAlTour() {
-  const intro = document.getElementById('intro');
+  const intro   = document.getElementById('intro');
   const loading = document.getElementById('loading-screen');
-  const bar = document.getElementById('loading-bar');
+  const bar     = document.getElementById('loading-bar');
   intro.classList.add('out');
   setTimeout(() => {
     loading.style.opacity = '1';
@@ -533,7 +573,7 @@ function generarPanel() {
   ESCENAS.forEach((e, i) => {
     const btn = document.createElement('button');
     btn.id = 'btn-' + e.id;
-    btn.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;';
+    btn.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
     btn.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">0${i+1}</span>${e.label}`;
     btn.onclick = () => irA(e.id);
     grid.appendChild(btn);
@@ -559,21 +599,14 @@ function cargarEscena(idEscena) {
   if (!escena) return;
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
+
+  detenerOverlayLightbox();
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
 
-  /* hotspots de navegación */
   const hsConfig = (escena.hotspots || []).map(hs => ({
     pitch: hs.pitch, yaw: hs.yaw, type: "info", text: hs.text,
     clickHandlerFunc: () => irA(hs.targetScene),
     clickHandlerArgs: hs.targetScene
-  }));
-
-  /* hotspots de lightbox — type:"custom" con createTooltipFunc para render propio */
-  const hsLb = (escena.hotspotsLightbox || []).map(hs => ({
-    pitch: hs.pitch, yaw: hs.yaw,
-    type: "custom",
-    createTooltipFunc: crearHotspotLightbox,
-    createTooltipArgs: { text: hs.text, lightboxIndex: hs.lightboxIndex }
   }));
 
   visor = pannellum.viewer('panorama', {
@@ -581,7 +614,7 @@ function cargarEscena(idEscena) {
     autoLoad: true, autoRotate: -1.5, autoRotateInactivityDelay: 4000,
     compass: false, showFullscreenCtrl: false, showZoomCtrl: false,
     pitch: escena.pitch, yaw: escena.yaw, hfov: 100, minHfov: 50, maxHfov: 120,
-    hotSpots: [...hsConfig, ...hsLb],
+    hotSpots: hsConfig,
     strings: {
       loadingLabel:"", bylineLabel:"",
       noPanoramaError:"No se encontró la imagen.",
@@ -591,6 +624,11 @@ function cargarEscena(idEscena) {
       unknownError:"Error desconocido."
     }
   });
+
+  /* Iniciar overlay de lightbox si la escena lo tiene */
+  if (escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
+    iniciarOverlayLightbox(escena.hotspotsLightbox);
+  }
 }
 </script>
 </body>
