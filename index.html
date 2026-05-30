@@ -500,12 +500,14 @@ function entrarAlTour() {
   const bar = document.getElementById('loading-bar');
   intro.classList.add('out');
   setTimeout(() => {
-    loading.style.opacity = '0'; loading.style.visibility = 'hidden';
-    document.getElementById('minimap').style.display = 'block';
+    loading.style.opacity = '1'; loading.style.visibility = 'visible';
     bar.style.transition = 'left 1.5s ease'; bar.style.left = '0';
     setTimeout(() => {
       generarPanel(); cargarEscena(ESCENAS[0].id); tourIniciado = true;
-      setTimeout(() => { loading.style.opacity='0'; loading.style.visibility='hidden'; const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all'; }, 800);
+      setTimeout(() => {
+        loading.style.opacity='0'; loading.style.visibility='hidden';
+        const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
+      }, 800);
     }, 1400);
   }, 800);
 }
