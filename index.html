@@ -334,7 +334,7 @@ const GALERIAS = {
     eyebrow: "Detalle de piscina",
     titulo: "Pileta",
     items: [
-      { src: "images/piscina-detalle.png", caption: "Vista jardin y piscina." },
+      { src: "images/piscina-detalle.png", caption: "Vista jardin y piscina." }
    ]
   },
   "planta": {
@@ -504,7 +504,7 @@ function iniciarOverlayLightbox(items) {
   if (!wrap) {
     wrap = document.createElement('div');
     wrap.id = 'lb-hotspot-wrap';
-    wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:50;';
+    wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:150;';
     document.getElementById('panorama').appendChild(wrap);
   }
   wrap.innerHTML = '';
