@@ -87,7 +87,7 @@
       pointer-events: none;
       transition: opacity 0.6s ease;
       position: fixed;
-      bottom: 130px;
+      bottom: 50px;
       right: 36px;
       z-index: 200;
       background: rgba(8,8,8,0.45);
@@ -171,7 +171,7 @@
       .footer-contacto-link { font-size: 9px !important; }
 
       /* ── MINI MAPA ── */
-      #minimap { right: 10px; bottom: 80px; width: 270px; padding: 6px; }
+      #minimap { right: 10px; bottom: 40px; width: 270px; padding: 6px; }
       #minimap-label { font-size: 7px; margin-bottom: 4px; }
       #minimap-cone-wrap { width: 40px; height: 40px; }
       #minimap-scene-name { font-size: 7px; margin-top: 4px; }
@@ -531,7 +531,7 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":  _pct(1600,  600, 249),
+  "living":  _pct(1600,  600, 204),
   "cocina":  _pct(1260,  730, 249),
   "jardin":  _pct(2290,  540, 249)
 };
