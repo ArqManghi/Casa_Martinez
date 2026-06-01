@@ -117,7 +117,7 @@
     }
     #minimap-cone-wrap {
       position: absolute;
-      width: 44px; height: 44px;
+      width: 58px; height: 58px;
       transform: translate(-50%, -50%);
       pointer-events: none;
       transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1);
@@ -173,7 +173,7 @@
       /* ── MINI MAPA ── */
       #minimap { right: 10px; bottom: 80px; width: 270px; padding: 6px; }
       #minimap-label { font-size: 7px; margin-bottom: 4px; }
-      #minimap-cone-wrap { width: 30px; height: 30px; }
+      #minimap-cone-wrap { width: 40px; height: 40px; }
       #minimap-scene-name { font-size: 7px; margin-top: 4px; }
 
       /* ── LIGHTBOX ── */
@@ -534,7 +534,7 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":  _pct(1600,  600, 299),  /* 249 + 50 */
+  "living":  _pct(1600,  600, 249),
   "cocina":  _pct(1260,  730, 249),
   "jardin":  _pct(2290,  540, 249)
 };
