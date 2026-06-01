@@ -191,6 +191,98 @@
 
     #lightbox.fullscreen #lb-container { width: min(96vw, 1400px); }
     #lightbox.fullscreen #lb-img { max-height: 92vh; }
+
+    /* ── HOTSPOTS CIRCULARES (Opción B / Dorado B) ── */
+    .hs-circle {
+      position: absolute;
+      pointer-events: all;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .hs-circle .hs-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid;
+      animation: hs-pulse 1.8s ease-out infinite;
+    }
+    .hs-circle .hs-ring.delay { animation-delay: 0.9s; }
+    .hs-circle .hs-dot {
+      position: relative;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      transition: transform 0.25s;
+      z-index: 2;
+    }
+    .hs-circle .hs-icon {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hs-circle:hover .hs-dot { transform: scale(1.4); }
+    .hs-circle:hover .hs-icon { transform: scale(1.15); }
+    @keyframes hs-pulse {
+      0%   { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    /* Navegación — blanco */
+    .hs-circle.hs-nav .hs-ring { border-color: rgba(255,255,255,0.9); }
+    .hs-circle.hs-nav .hs-dot  { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.5); }
+
+    /* Lightbox — dorado, con ícono cámara */
+    .hs-circle.hs-lb { width: 44px; height: 44px; }
+    .hs-circle.hs-lb .hs-ring { border-color: rgba(200,169,110,0.9); }
+    .hs-circle.hs-lb .hs-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(8,8,8,0.7);
+      border: 1.5px solid #c8a96e;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Tooltip al hover */
+    .hs-circle .hs-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8,8,8,0.92);
+      border: 1px solid rgba(200,169,110,0.35);
+      color: #f0ece4;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      backdrop-filter: blur(6px);
+    }
+    .hs-circle:hover .hs-tooltip { opacity: 1; }
+    .hs-circle.hs-lb .hs-tooltip { color: #c8a96e; }
+
+    @media (max-width: 600px) {
+      .hs-circle { width: 38px; height: 38px; }
+      .hs-circle.hs-lb { width: 34px; height: 34px; }
+      .hs-circle .hs-dot { width: 10px; height: 10px; }
+      .hs-circle.hs-lb .hs-icon { width: 22px; height: 22px; }
+      .hs-circle .hs-tooltip { font-size: 9px; padding: 4px 8px; letter-spacing: 1.2px; }
+    }
 </style>
 </head>
 <body>
@@ -515,9 +607,8 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  lbNav(-1);
 });
 
-/* — Overlay hotspots lightbox — */
-function iniciarOverlayLightbox(items) {
-  detenerOverlayLightbox();
+/* — Overlay unificado de hotspots (navegación + lightbox) — */
+function asegurarWrap() {
   let wrap = document.getElementById('lb-hotspot-wrap');
   if (!wrap) {
     wrap = document.createElement('div');
@@ -525,31 +616,60 @@ function iniciarOverlayLightbox(items) {
     wrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:150;';
     document.getElementById('panorama').appendChild(wrap);
   }
+  return wrap;
+}
+
+function crearHotspotNav(item) {
+  const el = document.createElement('div');
+  el.className = 'hs-circle hs-nav';
+  el.innerHTML = `
+    <div class="hs-ring"></div>
+    <div class="hs-ring delay"></div>
+    <div class="hs-dot"></div>
+    <div class="hs-tooltip">${item.text}</div>
+  `;
+  el.addEventListener('click', e => { e.stopPropagation(); irA(item.targetScene); });
+  return el;
+}
+
+function crearHotspotLb(item) {
+  const el = document.createElement('div');
+  el.className = 'hs-circle hs-lb';
+  el.innerHTML = `
+    <div class="hs-ring"></div>
+    <div class="hs-icon">
+      <svg viewBox="0 0 24 24" width="14" height="14" style="fill:none;stroke:#c8a96e;stroke-width:1.8">
+        <circle cx="12" cy="13" r="3.2"/>
+        <path d="M3 8.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a2 2 0 0 0-2-2h-2.5L15 4.5h-6L7.5 6.5H5a2 2 0 0 0-2 2z"/>
+      </svg>
+    </div>
+    <div class="hs-tooltip">${item.text}</div>
+  `;
+  el.addEventListener('click', e => { e.stopPropagation(); abrirLightbox(item.galeriaId, 0); });
+  return el;
+}
+
+function iniciarOverlayLightbox(items) {
+  detenerOverlayLightbox();
+  const wrap = asegurarWrap();
   wrap.innerHTML = '';
   lbOverlayItems = [];
   items.forEach(item => {
-    const el = document.createElement('div');
-    const isMobile = window.innerWidth <= 600;
-    el.style.cssText = [
-      'position:absolute','pointer-events:all','transform:translate(-50%,-50%)',
-      isMobile ? 'padding:4px 8px' : 'padding:5px 10px',
-      'background:rgba(8,8,8,0.82)','border:1px solid rgba(200,169,110,0.55)',
-      'border-radius:2px',"font-family:'Outfit',sans-serif",
-      isMobile ? 'font-size:9px' : 'font-size:10px','font-weight:300',
-      isMobile ? 'letter-spacing:1px' : 'letter-spacing:2px',
-      'text-transform:uppercase','color:#c8a96e','cursor:pointer',
-      'white-space:nowrap','display:flex','align-items:center',
-      isMobile ? 'gap:5px' : 'gap:8px',
-      'backdrop-filter:blur(6px)','transition:background 0.25s,border-color 0.25s','user-select:none'
-    ].join(';') + ';';
-    el.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" style="fill:none;stroke:#c8a96e;stroke-width:1.6;flex-shrink:0"><rect x="3" y="3" width="18" height="14" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>${item.text}</span>`;
-    el.addEventListener('mouseenter', () => { el.style.background='rgba(200,169,110,0.12)'; el.style.borderColor='#c8a96e'; });
-    el.addEventListener('mouseleave', () => { el.style.background='rgba(8,8,8,0.82)'; el.style.borderColor='rgba(200,169,110,0.55)'; });
-    el.addEventListener('click', e => { e.stopPropagation(); abrirLightbox(item.galeriaId, 0); });
+    const el = crearHotspotLb(item);
     wrap.appendChild(el);
     lbOverlayItems.push({ pitch: item.pitch, yaw: item.yaw, el });
   });
   loopOverlay();
+}
+
+function iniciarOverlayNavegacion(items) {
+  const wrap = asegurarWrap();
+  items.forEach(item => {
+    const el = crearHotspotNav(item);
+    wrap.appendChild(el);
+    lbOverlayItems.push({ pitch: item.pitch, yaw: item.yaw, el });
+  });
+  if (!lbOverlayRAF) loopOverlay();
 }
 
 function loopOverlay() {
@@ -636,22 +756,26 @@ function cargarEscena(idEscena) {
   actualizarMinimap(idEscena);
   detenerOverlayLightbox();
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
-  const hsConfig = (escena.hotspots || []).map(hs => ({
-    pitch: hs.pitch, yaw: hs.yaw, type: "info", text: hs.text,
-    clickHandlerFunc: () => irA(hs.targetScene),
-    clickHandlerArgs: hs.targetScene
-  }));
+  /* Pannellum sin hotspots nativos — usamos overlay propio para todo */
   visor = pannellum.viewer('panorama', {
     type:'equirectangular', panorama:escena.img,
     autoLoad:true, autoRotate:-1.5, autoRotateInactivityDelay:4000,
     compass:false, showFullscreenCtrl:false, showZoomCtrl:false,
     pitch:escena.pitch, yaw:escena.yaw, hfov:100, minHfov:50, maxHfov:120,
-    hotSpots:hsConfig,
+    hotSpots:[],
     strings:{ loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
   });
-  if (escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
-    setTimeout(() => iniciarOverlayLightbox(escena.hotspotsLightbox), 800);
-  }
+  /* Overlay propio: lightbox primero (limpia wrap), navegación se suma */
+  setTimeout(() => {
+    if (escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
+      iniciarOverlayLightbox(escena.hotspotsLightbox);
+    } else {
+      detenerOverlayLightbox();
+    }
+    if (escena.hotspots && escena.hotspots.length > 0) {
+      iniciarOverlayNavegacion(escena.hotspots);
+    }
+  }, 800);
 }
 </script>
 </body>
