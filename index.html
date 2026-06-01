@@ -96,7 +96,7 @@
       padding: 10px;
       backdrop-filter: blur(10px);
       transition: opacity 0.3s;
-      width: 200px;
+      width: 300px;
     }
     #minimap-label {
       font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
@@ -112,19 +112,22 @@
       position: relative; width: 100%;
     }
     #minimap-img {
-      width: 100%; display: block; border-radius: 2px;
-      opacity: 0.75; filter: brightness(0.9);
+      width: 100%; display: block;
+      opacity: 0.9;
     }
-    #minimap-dot {
+    #minimap-cone-wrap {
       position: absolute;
-      width: 10px; height: 10px;
-      background: var(--gold);
-      border-radius: 50%;
-      border: 2px solid #080808;
-      box-shadow: 0 0 0 2px var(--gold), 0 0 12px rgba(200,169,110,0.6);
+      width: 44px; height: 44px;
       transform: translate(-50%, -50%);
-      transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1);
       pointer-events: none;
+      transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1);
+      display: none;
+    }
+    #minimap-cone {
+      width: 100%; height: 100%;
+      display: block;
+      transition: transform 0.12s linear;
+      transform-origin: center;
     }
     #minimap-scene-name {
       font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
@@ -168,9 +171,9 @@
       .footer-contacto-link { font-size: 9px !important; }
 
       /* ── MINI MAPA ── */
-      #minimap { right: 10px; bottom: 80px; width: 110px; padding: 6px; }
+      #minimap { right: 10px; bottom: 80px; width: 180px; padding: 6px; }
       #minimap-label { font-size: 7px; margin-bottom: 4px; }
-      #minimap-dot { width: 7px; height: 7px; }
+      #minimap-cone-wrap { width: 30px; height: 30px; }
       #minimap-scene-name { font-size: 7px; margin-top: 4px; }
 
       /* ── LIGHTBOX ── */
@@ -377,8 +380,19 @@
     <button id="minimap-toggle" onclick="toggleMinimap()" title="Minimizar">—</button>
   </div>
   <div id="minimap-img-wrap">
-    <img id="minimap-img" src="images/plano-martinez.png" alt="Planta del proyecto"/>
-    <div id="minimap-dot" style="left:58%;top:50%;"></div>
+    <img id="minimap-img" src="images/plano-martinez-blanco.png" alt="Planta del proyecto"/>
+    <div id="minimap-cone-wrap">
+      <svg id="minimap-cone" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="cone-grad" cx="50%" cy="100%" r="80%">
+            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <path d="M 0 0 L -32 -42 A 53 53 0 0 1 32 -42 Z" fill="url(#cone-grad)" stroke="rgba(200,169,110,0.7)" stroke-width="0.8"/>
+        <circle cx="0" cy="0" r="5" fill="#c8a96e" stroke="#080808" stroke-width="1.5"/>
+      </svg>
+    </div>
   </div>
   <div id="minimap-scene-name">Living / Comedor</div>
 </div>
@@ -508,23 +522,55 @@ const ESCENAS = [
 ];
 
 
-/* ── MINI MAPA ── */
+/* ── MINI MAPA ──
+   Coordenadas en píxeles del plano original (3030 × 1052) → convertidas a %.
+   Solo se incluyen las escenas que tienen posición en el plano.
+   El cono rota según el yaw + NORTE_OFFSET.
+*/
+const PLANO_W = 3030, PLANO_H = 1052;
+function _pct(px, py) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100 }; }
+
 const MINIMAP_POS = {
-  "living":      { x: 55, y: 50 },
-  "cocina":      { x: 43, y: 55 },
-  "dormitorio":  { x: 15, y: 30 },
-  "bano":        { x: 15, y: 30 },
-  "jardin":      { x: 80, y: 45 }
+  "living":  _pct(1600,  600),
+  "cocina":  _pct(1260,  730),
+  "jardin":  _pct(2290,  540)
 };
+
+/* Calibración del norte: cuando estás en el Living con yaw=0 mirás hacia las
+   hornallas (vector Living→Cocina). Ese vector sobre el plano tiene ángulo ~249°
+   medido en sentido horario desde "arriba" (norte gráfico).
+   Como todas las panos comparten el mismo norte global, este offset aplica a todas. */
+const NORTE_OFFSET = 249;
 
 function actualizarMinimap(idEscena) {
   const pos = MINIMAP_POS[idEscena];
-  if (!pos) return;
-  const dot = document.getElementById('minimap-dot');
+  const wrap = document.getElementById('minimap-cone-wrap');
   const nameEl = document.getElementById('minimap-scene-name');
   const escena = ESCENAS.find(e => e.id === idEscena);
-  if (dot) { dot.style.left = pos.x + '%'; dot.style.top = pos.y + '%'; }
+  if (!pos) {
+    if (wrap) wrap.style.display = 'none';
+    if (nameEl && escena) nameEl.textContent = escena.label;
+    return;
+  }
+  if (wrap) {
+    wrap.style.display = 'block';
+    wrap.style.left = pos.x + '%';
+    wrap.style.top  = pos.y + '%';
+  }
   if (nameEl && escena) nameEl.textContent = escena.label;
+}
+
+/* Loop de rotación del cono — corre permanente desde que arranca el tour */
+let minimapConeRAF = null;
+function loopMinimapCone() {
+  if (visor) {
+    const cono = document.getElementById('minimap-cone');
+    if (cono) {
+      const yaw = visor.getYaw();
+      cono.style.transform = `rotate(${yaw + NORTE_OFFSET}deg)`;
+    }
+  }
+  minimapConeRAF = requestAnimationFrame(loopMinimapCone);
 }
 
 function toggleMinimap() {
@@ -715,6 +761,7 @@ function entrarAlTour() {
       setTimeout(() => {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
+        if (!minimapConeRAF) loopMinimapCone();
       }, 800);
     }, 1400);
   }, 800);
