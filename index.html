@@ -524,23 +524,20 @@ const ESCENAS = [
 
 /* ── MINI MAPA ──
    Coordenadas en píxeles del plano original (3030 × 1052) → convertidas a %.
-   Solo se incluyen las escenas que tienen posición en el plano.
-   El cono rota según el yaw + NORTE_OFFSET.
+   Cada escena tiene su propio "norte" porque las panos pueden haber sido
+   renderizadas con orientaciones de cámara distintas.
+   - x, y: posición sobre el plano en porcentaje
+   - norte: ángulo en grados que debe apuntar el cono cuando yaw=0
+            (medido en sentido horario desde "arriba" del plano)
 */
 const PLANO_W = 3030, PLANO_H = 1052;
-function _pct(px, py) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100 }; }
+function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":  _pct(1600,  600),
-  "cocina":  _pct(1260,  730),
-  "jardin":  _pct(2290,  540)
+  "living":  _pct(1600,  600, 299),  /* 249 + 50 */
+  "cocina":  _pct(1260,  730, 249),
+  "jardin":  _pct(2290,  540, 249)
 };
-
-/* Calibración del norte: cuando estás en el Living con yaw=0 mirás hacia las
-   hornallas (vector Living→Cocina). Ese vector sobre el plano tiene ángulo ~249°
-   medido en sentido horario desde "arriba" (norte gráfico).
-   Como todas las panos comparten el mismo norte global, este offset aplica a todas. */
-const NORTE_OFFSET = 249;
 
 function actualizarMinimap(idEscena) {
   const pos = MINIMAP_POS[idEscena];
@@ -565,9 +562,10 @@ let minimapConeRAF = null;
 function loopMinimapCone() {
   if (visor) {
     const cono = document.getElementById('minimap-cone');
-    if (cono) {
+    const pos = MINIMAP_POS[escenaActual];
+    if (cono && pos) {
       const yaw = visor.getYaw();
-      cono.style.transform = `rotate(${yaw + NORTE_OFFSET}deg)`;
+      cono.style.transform = `rotate(${yaw + pos.norte}deg)`;
     }
   }
   minimapConeRAF = requestAnimationFrame(loopMinimapCone);
