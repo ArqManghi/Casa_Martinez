@@ -86,17 +86,15 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.6s ease;
-      position: fixed;
-      bottom: 50px;
-      right: 36px;
-      z-index: 200;
       background: rgba(8,8,8,0.45);
       border: 0.5px solid rgba(200,169,110,0.3);
       border-radius: 4px;
       padding: 10px;
       backdrop-filter: blur(6px);
-      transition: opacity 0.3s;
       width: 450px;
+      flex-shrink: 0;
+      align-self: flex-end;
+      margin-bottom: -8px;
     }
     #minimap-label {
       font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
@@ -171,7 +169,7 @@
       .footer-contacto-link { font-size: 9px !important; }
 
       /* ── MINI MAPA ── */
-      #minimap { right: 10px; bottom: 40px; width: 270px; padding: 6px; }
+      #minimap { width: 100%; padding: 6px; margin-bottom: 0; }
       #minimap-label { font-size: 7px; margin-bottom: 4px; }
       #minimap-cone-wrap { width: 40px; height: 40px; }
       #minimap-scene-name { font-size: 7px; margin-top: 4px; }
@@ -344,8 +342,30 @@
 
   <!-- AMBIENTES -->
   <div class="bottom-panel-label" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
-    <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;"></div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;">
+    <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;"></div>
+    <div id="minimap">
+      <div id="minimap-label">
+        <span>Ubicación · planta</span>
+        <button id="minimap-toggle" onclick="toggleMinimap()" title="Minimizar">—</button>
+      </div>
+      <div id="minimap-img-wrap">
+        <img id="minimap-img" src="images/plano-martinez-blanco.png" alt="Planta del proyecto"/>
+        <div id="minimap-cone-wrap">
+          <svg id="minimap-cone" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="cone-grad" cx="50%" cy="100%" r="80%">
+                <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <path d="M 0 0 L -32 -42 A 53 53 0 0 1 32 -42 Z" fill="url(#cone-grad)" stroke="rgba(200,169,110,0.7)" stroke-width="0.8"/>
+            <circle cx="0" cy="0" r="5" fill="#c8a96e" stroke="#080808" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div id="minimap-scene-name">Living / Comedor</div>
+    </div>
   </div>
 
   <!-- PIE DE INTERFAZ -->
@@ -369,30 +389,6 @@
   </div>
 </div>
 
-
-<!-- MINI MAPA -->
-<div id="minimap">
-  <div id="minimap-label">
-    <span>Ubicación · planta</span>
-    <button id="minimap-toggle" onclick="toggleMinimap()" title="Minimizar">—</button>
-  </div>
-  <div id="minimap-img-wrap">
-    <img id="minimap-img" src="images/plano-martinez-blanco.png" alt="Planta del proyecto"/>
-    <div id="minimap-cone-wrap">
-      <svg id="minimap-cone" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="cone-grad" cx="50%" cy="100%" r="80%">
-            <stop offset="0%" stop-color="#c8a96e" stop-opacity="0.55"/>
-            <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <path d="M 0 0 L -32 -42 A 53 53 0 0 1 32 -42 Z" fill="url(#cone-grad)" stroke="rgba(200,169,110,0.7)" stroke-width="0.8"/>
-        <circle cx="0" cy="0" r="5" fill="#c8a96e" stroke="#080808" stroke-width="1.5"/>
-      </svg>
-    </div>
-  </div>
-  <div id="minimap-scene-name">Living / Comedor</div>
-</div>
 
 <!-- LIGHTBOX — UN SOLO BLOQUE -->
 <div id="lightbox">
@@ -531,7 +527,7 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":  _pct(1600,  600, 204),
+  "living":  _pct(1600,  600, 329),
   "cocina":  _pct(1260,  730, 249),
   "jardin":  _pct(2290,  540, 249)
 };
