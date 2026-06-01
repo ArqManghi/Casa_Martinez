@@ -346,9 +346,6 @@
   <div class="bottom-panel-label" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
     <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;"></div>
-    <button onclick="abrirLightbox('planta', 0)" style="display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;flex-shrink:0;">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">⊞</span>Planta
-    </button>
   </div>
 
   <!-- PIE DE INTERFAZ -->
@@ -773,6 +770,17 @@ function volverIntro() {
 function generarPanel() {
   const grid = document.getElementById('scenes-grid');
   if (grid.children.length > 0) return;
+
+  /* Botón 00 — Plano (abre lightbox) */
+  const btnPlano = document.createElement('button');
+  btnPlano.id = 'btn-plano';
+  btnPlano.className = 'btn-planta';
+  btnPlano.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
+  btnPlano.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">00</span>Plano`;
+  btnPlano.onclick = () => abrirLightbox('planta', 0);
+  grid.appendChild(btnPlano);
+
+  /* Botones de escenas 01, 02, ... */
   ESCENAS.forEach((e, i) => {
     const btn = document.createElement('button');
     btn.id = 'btn-' + e.id;
