@@ -464,6 +464,15 @@ const GALERIAS = {
     { src: "images/plano-martinez.png", caption: "Planta general del proyecto. Casa Martinez." }
   ]
 },
+  "living": {
+    eyebrow: "Detalle de ambiente",
+    titulo: "Living / Comedor",
+    items: [
+      { src: "images/living-dia-martinez.png", caption: "Vista del living de día. Carpinterías ampliadas hacia el jardín vertical y conexión visual con el escritorio." },
+      { src: "images/living-noche-martinez.png", caption: "Vista nocturna del living. Iluminación cálida con cielorraso embutido y luz puntual sobre el jardín vertical." },
+      { src: "images/comedor-cocina-martinez.png", caption: "Vista del comedor integrado con la cocina al fondo. Mesa principal y barra desayunadora." }
+    ]
+  },
 };
 
 /* ═══════════════════════════════════════════════════════
@@ -476,6 +485,9 @@ const ESCENAS = [
     hotspots: [
       { targetScene: "cocina",  pitch: -15.5, yaw: -114.5, text: "Cocina" },
       { targetScene: "jardin",  pitch: -12.7, yaw: 82.2,   text: "Jardín" }
+    ],
+    hotspotsLightbox: [
+      { pitch: -11.3, yaw: -15.3, text: "Living · Ver vistas", galeriaId: "living" }
     ]
   },
   {
