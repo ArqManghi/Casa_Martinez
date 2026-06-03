@@ -168,7 +168,10 @@
       .footer-pie { padding: 6px 0 8px !important; }
       .footer-email-estudio { display: none !important; }
       .footer-logo { font-size: 11px !important; letter-spacing: 2px !important; }
-      .footer-contacto-link { font-size: 9px !important; }
+      .footer-contacto-label { display: none !important; }
+      .footer-contacto-sep { display: none !important; }
+      .footer-contacto-tel { display: none !important; }
+      .footer-contacto-email { font-size: 9px !important; }
 
       /* ── MINI MAPA — oculto en mobile ── */
       #minimap { display: none !important; }
@@ -357,10 +360,10 @@
 
     <!-- DERECHA — Contacto cliente en una línea -->
     <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-      <span style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,236,228,0.25);font-family:'Outfit',sans-serif;">Contacto</span>
-      <a href="mailto:cliente@email.com" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">cliente@email.com</a>
-      <span style="color:rgba(200,169,110,0.3);font-size:9px;">·</span>
-      <a href="tel:+5491100000000" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">+54 9 11 0000-0000</a>
+      <span class="footer-contacto-label" style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,236,228,0.25);font-family:'Outfit',sans-serif;">Contacto</span>
+      <a class="footer-contacto-email" href="mailto:cliente@email.com" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">cliente@email.com</a>
+      <span class="footer-contacto-sep" style="color:rgba(200,169,110,0.3);font-size:9px;">·</span>
+      <a class="footer-contacto-tel" href="tel:+5491100000000" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">+54 9 11 0000-0000</a>
     </div>
 
   </div>
