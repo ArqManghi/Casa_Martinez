@@ -53,6 +53,67 @@
     .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
     .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
 
+    /* ── BOTÓN DE AUDIO ── */
+    #audio-toggle {
+      position: fixed;
+      bottom: 220px;
+      right: 36px;
+      z-index: 200;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(8,8,8,0.55);
+      border: 1px solid rgba(200,169,110,0.3);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    #audio-toggle.visible { opacity: 1; pointer-events: all; }
+    #audio-toggle:hover {
+      border-color: var(--gold);
+      background: rgba(200,169,110,0.12);
+      transform: scale(1.08);
+    }
+    #audio-toggle svg {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.25s;
+    }
+    /* Líneas del altavoz: visibles cuando hay sonido */
+    #audio-toggle.muted .audio-wave { opacity: 0.25; }
+    #audio-toggle.muted .audio-cross { opacity: 1; }
+    #audio-toggle .audio-cross { opacity: 0; transition: opacity 0.25s; stroke: rgba(240,236,228,0.5); }
+    #audio-toggle .audio-wave { transition: opacity 0.25s; }
+
+    /* Pulse cuando suena */
+    #audio-toggle:not(.muted)::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.4);
+      animation: audio-pulse 2.4s ease-out infinite;
+    }
+    @keyframes audio-pulse {
+      0%   { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1.25); opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      #audio-toggle { bottom: 78px; right: 12px; width: 36px; height: 36px; }
+      #audio-toggle svg { width: 15px; height: 15px; }
+    }
+
+    /* ── BOTÓN DE AUDIO ── (end) */
     /* ── INDICADOR PRIMERA VEZ ── */
     #hint-overlay {
       position: fixed;
@@ -430,6 +491,23 @@
 
 <div id="panorama" style="width:100%;height:100vh;display:block;"></div>
 
+<!-- AUDIO AMBIENTE -->
+<audio id="audio-interior" loop preload="none" src="audio/ambiente-interior.mp3"></audio>
+<audio id="audio-exterior" loop preload="none" src="audio/ambiente-exterior.mp3"></audio>
+
+<button id="audio-toggle" class="muted" onclick="toggleAudio()" title="Activar / silenciar sonido">
+  <svg viewBox="0 0 24 24">
+    <!-- Altavoz -->
+    <path d="M11 5L6 9H3v6h3l5 4V5z"/>
+    <!-- Ondas de sonido (visibles cuando suena) -->
+    <path class="audio-wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+    <path class="audio-wave" d="M18.5 5.5a9 9 0 0 1 0 13"/>
+    <!-- Cruz para muted -->
+    <line class="audio-cross" x1="23" y1="9" x2="17" y2="15"/>
+    <line class="audio-cross" x1="17" y1="9" x2="23" y2="15"/>
+  </svg>
+</button>
+
 <!-- INDICADOR PRIMERA VEZ -->
 <div id="hint-overlay">
   <div id="hint-box">
@@ -679,6 +757,99 @@ function toggleMinimap() {
 }
 
 /* ═══════════════════════════════════════════════════════
+   AUDIO AMBIENTE
+   - Apagado por defecto. Se activa con el botón.
+   - Dos pistas: interior (cocina/living/dorm/baño) y exterior (jardín).
+   - Crossfade suave de 800ms al cambiar de escena.
+   - Persiste preferencia en localStorage.
+═══════════════════════════════════════════════════════ */
+const AUDIO_KEY = 'casa_martinez_audio_v1';
+const AUDIO_VOL_MAX = 0.45;         // volumen máximo (sutil)
+const AUDIO_FADE_MS = 800;          // crossfade entre escenas
+
+const AUDIO_ESCENA_TIPO = {
+  living: 'interior',
+  cocina: 'interior',
+  dormitorio: 'interior',
+  bano: 'interior',
+  jardin: 'exterior'
+};
+
+let audioEncendido = false;
+let audioFadeRAF = null;
+
+function audioElements() {
+  return {
+    interior: document.getElementById('audio-interior'),
+    exterior: document.getElementById('audio-exterior')
+  };
+}
+
+function fadeAudio(el, targetVol, duracion) {
+  if (!el) return;
+  const startVol = el.volume;
+  const t0 = performance.now();
+  const step = (now) => {
+    const t = Math.min((now - t0) / duracion, 1);
+    el.volume = startVol + (targetVol - startVol) * t;
+    if (t < 1) requestAnimationFrame(step);
+    else if (targetVol === 0) { try { el.pause(); } catch(e){} }
+  };
+  requestAnimationFrame(step);
+}
+
+function aplicarAudioParaEscena(idEscena, fade = true) {
+  if (!audioEncendido) return;
+  const tipo = AUDIO_ESCENA_TIPO[idEscena];
+  const { interior, exterior } = audioElements();
+  const target = tipo === 'exterior' ? exterior : interior;
+  const otro   = tipo === 'exterior' ? interior : exterior;
+
+  // Reproducir target (si no está sonando)
+  try {
+    if (target.paused) { target.volume = 0; target.play().catch(()=>{}); }
+  } catch(e){}
+
+  fadeAudio(target, AUDIO_VOL_MAX, fade ? AUDIO_FADE_MS : 0);
+  fadeAudio(otro,   0,             fade ? AUDIO_FADE_MS : 0);
+}
+
+function toggleAudio() {
+  audioEncendido = !audioEncendido;
+  const btn = document.getElementById('audio-toggle');
+  const { interior, exterior } = audioElements();
+
+  if (audioEncendido) {
+    btn.classList.remove('muted');
+    aplicarAudioParaEscena(escenaActual, true);
+  } else {
+    btn.classList.add('muted');
+    fadeAudio(interior, 0, AUDIO_FADE_MS);
+    fadeAudio(exterior, 0, AUDIO_FADE_MS);
+  }
+
+  try { localStorage.setItem(AUDIO_KEY, audioEncendido ? '1' : '0'); } catch(e){}
+}
+
+function inicializarAudio() {
+  // Mostrar botón
+  document.getElementById('audio-toggle').classList.add('visible');
+
+  // Restaurar preferencia previa (si el usuario lo dejó encendido antes)
+  let estado = '0';
+  try { estado = localStorage.getItem(AUDIO_KEY) || '0'; } catch(e){}
+
+  if (estado === '1') {
+    // Algunos browsers requieren interacción previa; intentamos pero si falla
+    // queda apagado hasta que el usuario toque el botón.
+    audioEncendido = true;
+    document.getElementById('audio-toggle').classList.remove('muted');
+    aplicarAudioParaEscena(escenaActual, false);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════
    INDICADOR PRIMERA VEZ
    Aparece la primera visita al cargar el tour.
    Se oculta al primer arrastre o a los 5 segundos.
@@ -899,7 +1070,7 @@ function entrarAlTour() {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
         if (!minimapConeRAF) loopMinimapCone();
-        // Mostrar indicador de primera vez (después de que se vea bien el 360)
+        inicializarAudio();
         setTimeout(mostrarIndicadorPrimeraVez, 600);
       }, 800);
     }, 1400);
@@ -951,6 +1122,7 @@ function cargarEscena(idEscena) {
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
   actualizarMinimap(idEscena);
+  aplicarAudioParaEscena(idEscena, true);
   detenerOverlayLightbox();
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
   visor = pannellum.viewer('panorama', {
