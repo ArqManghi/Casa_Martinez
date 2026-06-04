@@ -828,7 +828,9 @@ function cargarEscena(idEscena) {
     type:'equirectangular', panorama:escena.img,
     autoLoad:true, autoRotate:-1.5, autoRotateInactivityDelay:4000,
     compass:false, showFullscreenCtrl:false, showZoomCtrl:false,
-    pitch:escena.pitch, yaw:escena.yaw, hfov:100, minHfov:50, maxHfov:120,
+    pitch:escena.pitch, yaw:escena.yaw,
+    hfov: (window.innerWidth <= 600 ? 75 : 100),
+    minHfov:50, maxHfov:120,
     hotSpots:[],
     strings:{ loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
   });
