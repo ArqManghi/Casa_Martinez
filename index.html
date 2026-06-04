@@ -53,6 +53,83 @@
     .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
     .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
 
+    /* ── INDICADOR PRIMERA VEZ ── */
+    #hint-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 250;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    #hint-overlay.show { opacity: 1; visibility: visible; }
+    #hint-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 32px;
+      background: rgba(8,8,8,0.55);
+      border: 1px solid rgba(200,169,110,0.25);
+      border-radius: 6px;
+      backdrop-filter: blur(8px);
+    }
+    #hint-icon {
+      width: 70px;
+      height: 40px;
+      position: relative;
+    }
+    #hint-icon svg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: hint-slide 2.2s ease-in-out infinite;
+    }
+    @keyframes hint-slide {
+      0%   { left: 0;    opacity: 0; }
+      15%  {             opacity: 1; }
+      85%  {             opacity: 1; }
+      100% { left: 42px; opacity: 0; }
+    }
+    #hint-arrow-left, #hint-arrow-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-top: 1.5px solid rgba(200,169,110,0.5);
+      border-left: 1.5px solid rgba(200,169,110,0.5);
+    }
+    #hint-arrow-left  { left:  -2px; transform: translateY(-50%) rotate(-45deg); }
+    #hint-arrow-right { right: -2px; transform: translateY(-50%) rotate(135deg); }
+    #hint-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    #hint-text-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 9px;
+      font-weight: 300;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-top: -6px;
+    }
+
     /* LIGHTBOX */
     #lightbox { position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; pointer-events:none; transition:opacity 0.4s ease, visibility 0.4s; }
     #lightbox.open { opacity:1; visibility:visible; pointer-events:all; }
@@ -176,6 +253,19 @@
       /* ── MINI MAPA — oculto en mobile ── */
       #minimap { display: none !important; }
 
+      /* ── HINT — más compacto en mobile ── */
+      #hint-box { padding: 16px 24px; gap: 10px; }
+      #hint-text { font-size: 10px; letter-spacing: 2px; }
+      #hint-text-sub { font-size: 8px; letter-spacing: 1px; }
+      #hint-icon { width: 60px; height: 32px; }
+      #hint-icon svg { width: 22px; height: 22px; }
+      @keyframes hint-slide {
+        0%   { left: 0;    opacity: 0; }
+        15%  {             opacity: 1; }
+        85%  {             opacity: 1; }
+        100% { left: 38px; opacity: 0; }
+      }
+
       /* ── LIGHTBOX ── */
       #lb-container { width: 96vw !important; max-height: 96vh; }
       #lb-header { padding: 0 0 8px; margin-bottom: 10px; }
@@ -195,7 +285,7 @@
     #lightbox.fullscreen #lb-container { width: min(96vw, 1400px); }
     #lightbox.fullscreen #lb-img { max-height: 92vh; }
 
-    /* ── HOTSPOTS CIRCULARES (Opción B / Dorado B) ── */
+    /* ── HOTSPOTS CIRCULARES ── */
     .hs-circle {
       position: absolute;
       pointer-events: all;
@@ -340,6 +430,23 @@
 
 <div id="panorama" style="width:100%;height:100vh;display:block;"></div>
 
+<!-- INDICADOR PRIMERA VEZ -->
+<div id="hint-overlay">
+  <div id="hint-box">
+    <div id="hint-icon">
+      <div id="hint-arrow-left"></div>
+      <svg viewBox="0 0 24 24">
+        <path d="M7 11V6a2 2 0 0 1 4 0v5"/>
+        <path d="M11 11V4a2 2 0 0 1 4 0v7"/>
+        <path d="M15 11V6a2 2 0 0 1 4 0v8a7 7 0 0 1-7 7h-1a7 7 0 0 1-7-7v-2a2 2 0 0 1 4 0"/>
+      </svg>
+      <div id="hint-arrow-right"></div>
+    </div>
+    <div id="hint-text">Arrastrá para mirar alrededor</div>
+    <div id="hint-text-sub">Tocá un círculo para cambiar de ambiente</div>
+  </div>
+</div>
+
 <div class="bottom-panel-wrap" style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 0;">
 
   <!-- AMBIENTES -->
@@ -350,27 +457,19 @@
 
   <!-- PIE DE INTERFAZ -->
   <div class="footer-pie" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 0 9px;border-top:0.5px solid rgba(255,255,255,0.07);">
-
-    <!-- IZQUIERDA — Renders360 + estudio en una línea -->
     <div style="display:flex;align-items:center;gap:14px;min-width:0;">
       <div class="footer-logo" style="font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:300;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.5);flex-shrink:0;">Renders<span style="color:#c8a96e;">360</span></div>
       <span style="color:rgba(240,236,228,0.15);font-size:9px;flex-shrink:0;">·</span>
       <a class="footer-email-estudio" href="mailto:emanuelmanghi@gmail.com" style="font-size:9px;font-weight:300;letter-spacing:1px;color:rgba(240,236,228,0.3);text-decoration:none;font-family:'Outfit',sans-serif;transition:color 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" onmouseover="this.style.color='#c8a96e'" onmouseout="this.style.color='rgba(240,236,228,0.3)'">Arq. Emanuel Manghi · emanuelmanghi@gmail.com</a>
     </div>
-
-    <!-- DERECHA — Contacto cliente en una línea -->
     <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
       <span class="footer-contacto-label" style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,236,228,0.25);font-family:'Outfit',sans-serif;">Contacto</span>
       <a class="footer-contacto-email" href="mailto:cliente@email.com" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">cliente@email.com</a>
       <span class="footer-contacto-sep" style="color:rgba(200,169,110,0.3);font-size:9px;">·</span>
       <a class="footer-contacto-tel" href="tel:+5491100000000" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">+54 9 11 0000-0000</a>
     </div>
-
   </div>
 </div>
-
-
-
 
 <!-- MINI MAPA -->
 <div id="minimap">
@@ -396,7 +495,7 @@
   <div id="minimap-scene-name">Living / Comedor</div>
 </div>
 
-<!-- LIGHTBOX — UN SOLO BLOQUE -->
+<!-- LIGHTBOX -->
 <div id="lightbox">
   <div id="lb-backdrop" onclick="cerrarLightbox()"></div>
   <div id="lb-container">
@@ -431,9 +530,7 @@
 <script>
 
 /* ═══════════════════════════════════════════════════════
-   GALERÍAS LIGHTBOX — agregá o quitá imágenes acá
-   Cada galería tiene un id, título, y lista de imágenes.
-   En hotspotsLightbox de cada escena referenciás el id.
+   GALERÍAS LIGHTBOX
 ═══════════════════════════════════════════════════════ */
 const GALERIAS = {
   "parrilla": {
@@ -461,13 +558,13 @@ const GALERIAS = {
    ]
   },
   "planta": {
-  eyebrow: "Proyecto",
-  titulo: "Planta del proyecto",
-  fullscreen: true,
-  items: [
-    { src: "images/plano-martinez.png", caption: "Planta general del proyecto. Casa Martinez." }
-  ]
-},
+    eyebrow: "Proyecto",
+    titulo: "Planta del proyecto",
+    fullscreen: true,
+    items: [
+      { src: "images/plano-martinez.png", caption: "Planta general del proyecto. Casa Martinez." }
+    ]
+  },
   "living": {
     eyebrow: "Detalle de ambiente",
     titulo: "Living / Comedor",
@@ -480,7 +577,7 @@ const GALERIAS = {
 };
 
 /* ═══════════════════════════════════════════════════════
-   ESCENAS — configurá hotspots y hotspotsLightbox acá
+   ESCENAS
 ═══════════════════════════════════════════════════════ */
 const ESCENAS = [
   {
@@ -533,14 +630,7 @@ const ESCENAS = [
 ];
 
 
-/* ── MINI MAPA ──
-   Coordenadas en píxeles del plano original (3030 × 1052) → convertidas a %.
-   Cada escena tiene su propio "norte" porque las panos pueden haber sido
-   renderizadas con orientaciones de cámara distintas.
-   - x, y: posición sobre el plano en porcentaje
-   - norte: ángulo en grados que debe apuntar el cono cuando yaw=0
-            (medido en sentido horario desde "arriba" del plano)
-*/
+/* ── MINI MAPA ── */
 const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
@@ -568,7 +658,6 @@ function actualizarMinimap(idEscena) {
   if (nameEl && escena) nameEl.textContent = escena.label;
 }
 
-/* Loop de rotación del cono — corre permanente desde que arranca el tour */
 let minimapConeRAF = null;
 function loopMinimapCone() {
   if (visor) {
@@ -590,7 +679,47 @@ function toggleMinimap() {
 }
 
 /* ═══════════════════════════════════════════════════════
-   MOTOR — no tocar
+   INDICADOR PRIMERA VEZ
+   Aparece la primera visita al cargar el tour.
+   Se oculta al primer arrastre o a los 5 segundos.
+   Se persiste en localStorage para no molestar visitas siguientes.
+═══════════════════════════════════════════════════════ */
+const HINT_KEY = 'casa_martinez_tour_visitado_v1';
+let hintTimer = null;
+let hintActivo = false;
+
+function mostrarIndicadorPrimeraVez() {
+  // Si ya visitó, no mostrar nunca más
+  try { if (localStorage.getItem(HINT_KEY)) return; } catch(e) {}
+
+  hintActivo = true;
+  const overlay = document.getElementById('hint-overlay');
+  overlay.classList.add('show');
+
+  // Auto-ocultar a los 5 segundos
+  hintTimer = setTimeout(ocultarIndicadorPrimeraVez, 5000);
+
+  // Listeners para ocultar al primer movimiento
+  const panorama = document.getElementById('panorama');
+  ['mousedown', 'touchstart', 'wheel'].forEach(ev => {
+    panorama.addEventListener(ev, ocultarIndicadorPrimeraVez, { once: true, passive: true });
+  });
+}
+
+function ocultarIndicadorPrimeraVez() {
+  if (!hintActivo) return;
+  hintActivo = false;
+  document.getElementById('hint-overlay').classList.remove('show');
+  if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+  try { localStorage.setItem(HINT_KEY, '1'); } catch(e) {}
+}
+
+/* Para resetear y volver a ver el indicador (debug):
+   En la consola del browser: localStorage.removeItem('casa_martinez_tour_visitado_v1')
+*/
+
+/* ═══════════════════════════════════════════════════════
+   MOTOR
 ═══════════════════════════════════════════════════════ */
 let visor = null;
 let escenaActual = ESCENAS[0].id;
@@ -607,7 +736,6 @@ function abrirLightbox(galeriaId, idx) {
   lbIndex = idx || 0;
   document.getElementById('lb-eyebrow').textContent = lbGaleriaActual.eyebrow;
   document.getElementById('lb-title').textContent   = lbGaleriaActual.titulo;
-  // Limpiar thumbs
   document.getElementById('lb-thumbs').innerHTML = '';
   lbGaleriaActual.items.forEach((item, i) => {
     const t = document.createElement('img');
@@ -662,7 +790,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft')  lbNav(-1);
 });
 
-/* — Overlay unificado de hotspots (navegación + lightbox) — */
+/* — Overlay unificado de hotspots — */
 function asegurarWrap() {
   let wrap = document.getElementById('lb-hotspot-wrap');
   if (!wrap) {
@@ -771,6 +899,8 @@ function entrarAlTour() {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
         if (!minimapConeRAF) loopMinimapCone();
+        // Mostrar indicador de primera vez (después de que se vea bien el 360)
+        setTimeout(mostrarIndicadorPrimeraVez, 600);
       }, 800);
     }, 1400);
   }, 800);
@@ -785,7 +915,6 @@ function generarPanel() {
   const grid = document.getElementById('scenes-grid');
   if (grid.children.length > 0) return;
 
-  /* Botón 00 — Plano (abre lightbox) */
   const btnPlano = document.createElement('button');
   btnPlano.id = 'btn-plano';
   btnPlano.className = 'btn-planta';
@@ -794,7 +923,6 @@ function generarPanel() {
   btnPlano.onclick = () => abrirLightbox('planta', 0);
   grid.appendChild(btnPlano);
 
-  /* Botones de escenas 01, 02, ... */
   ESCENAS.forEach((e, i) => {
     const btn = document.createElement('button');
     btn.id = 'btn-' + e.id;
@@ -807,6 +935,8 @@ function generarPanel() {
 
 function irA(idEscena) {
   if (idEscena === escenaActual) return;
+  // Si el hint sigue activo y el usuario cambia escena, ocultarlo
+  if (hintActivo) ocultarIndicadorPrimeraVez();
   const overlay = document.getElementById('transition-overlay');
   overlay.style.opacity = '1'; overlay.style.pointerEvents = 'all';
   setTimeout(() => {
@@ -823,7 +953,6 @@ function cargarEscena(idEscena) {
   actualizarMinimap(idEscena);
   detenerOverlayLightbox();
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
-  /* Pannellum sin hotspots nativos — usamos overlay propio para todo */
   visor = pannellum.viewer('panorama', {
     type:'equirectangular', panorama:escena.img,
     autoLoad:true, autoRotate:-1.5, autoRotateInactivityDelay:4000,
@@ -834,7 +963,6 @@ function cargarEscena(idEscena) {
     hotSpots:[],
     strings:{ loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
   });
-  /* Overlay propio: lightbox primero (limpia wrap), navegación se suma */
   setTimeout(() => {
     if (escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
       iniciarOverlayLightbox(escena.hotspotsLightbox);
