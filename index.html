@@ -68,6 +68,44 @@
     .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
     .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
 
+    /* ── BOTÓN FULLSCREEN ── */
+    #fullscreen-btn {
+      position: fixed;
+      bottom: 110px;
+      left: 36px;
+      z-index: 200;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(8,8,8,0.55);
+      border: 1px solid rgba(200,169,110,0.3);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    #fullscreen-btn.visible { opacity: 1; pointer-events: all; }
+    #fullscreen-btn:hover {
+      border-color: var(--gold);
+      background: rgba(200,169,110,0.12);
+      transform: scale(1.08);
+    }
+    #fullscreen-btn svg {
+      width: 15px; height: 15px;
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    @media (max-width: 600px) {
+      #fullscreen-btn { display: none !important; }
+    }
+
     /* ── BOTÓN COMPARTIR ── */
     #share-btn {
       position: fixed;
@@ -658,6 +696,22 @@
   </svg>
 </button>
 
+<!-- FULLSCREEN -->
+<button id="fullscreen-btn" onclick="toggleFullscreen()" title="Pantalla completa">
+  <svg viewBox="0 0 24 24" id="fs-icon-expand">
+    <polyline points="15 3 21 3 21 9"/>
+    <polyline points="9 21 3 21 3 15"/>
+    <line x1="21" y1="3" x2="14" y2="10"/>
+    <line x1="3" y1="21" x2="10" y2="14"/>
+  </svg>
+  <svg viewBox="0 0 24 24" id="fs-icon-compress" style="display:none;">
+    <polyline points="4 14 10 14 10 20"/>
+    <polyline points="20 10 14 10 14 4"/>
+    <line x1="14" y1="10" x2="21" y2="3"/>
+    <line x1="3" y1="21" x2="10" y2="14"/>
+  </svg>
+</button>
+
 <!-- INDICADOR PRIMERA VEZ -->
 <div id="hint-overlay">
   <div id="hint-box">
@@ -913,6 +967,34 @@ function toggleMinimap() {
   mm.classList.toggle('collapsed');
   btn.textContent = mm.classList.contains('collapsed') ? '+' : '—';
 }
+
+/* ═══════════════════════════════════════════════════════
+   FULLSCREEN
+═══════════════════════════════════════════════════════ */
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+    gaEvento('fullscreen_toggle', { state: 'enter', project: 'Casa Martinez' });
+  } else {
+    document.exitFullscreen().catch(() => {});
+    gaEvento('fullscreen_toggle', { state: 'exit', project: 'Casa Martinez' });
+  }
+}
+
+/* Actualizar ícono al entrar/salir de fullscreen */
+document.addEventListener('fullscreenchange', () => {
+  const isFS = !!document.fullscreenElement;
+  document.getElementById('fs-icon-expand').style.display  = isFS ? 'none' : 'block';
+  document.getElementById('fs-icon-compress').style.display = isFS ? 'block' : 'none';
+});
+
+function inicializarFullscreen() {
+  /* Solo mostrar si el browser soporta fullscreen */
+  if (document.documentElement.requestFullscreen) {
+    document.getElementById('fullscreen-btn').classList.add('visible');
+  }
+}
+
 
 /* ═══════════════════════════════════════════════════════
    COMPARTIR
@@ -1305,6 +1387,7 @@ function entrarAlTour() {
         if (!minimapConeRAF) loopMinimapCone();
         inicializarAudio();
         inicializarShare();
+        inicializarFullscreen();
         setTimeout(mostrarIndicadorPrimeraVez, 600);
       }, 800);
     }, 1400);
