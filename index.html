@@ -904,14 +904,15 @@ function toggleMinimap() {
    Mobile: API nativa (navigator.share)
    Desktop: popup con WhatsApp, Email, Copiar link
 ═══════════════════════════════════════════════════════ */
-const SHARE_URL   = 'https://arqmanghi.github.io/Casa_Martinez/';
+const SHARE_BASE  = 'https://arqmanghi.github.io/Casa_Martinez/';
 const SHARE_TITLE = 'Recorrido Virtual 360° — Casa Martinez';
 const SHARE_TEXT  = 'Mirá el recorrido virtual 360° de Casa Martinez';
+function getShareUrl() { return SHARE_BASE + (escenaActual ? '#' + escenaActual : ''); }
 
 function compartir() {
   // Mobile: usar API nativa
   if (navigator.share) {
-    navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: SHARE_URL }).catch(() => {});
+    navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: getShareUrl() }).catch(() => {});
     return;
   }
   // Desktop: toggle popup
@@ -921,10 +922,10 @@ function compartir() {
     cerrarSharePopup();
   } else {
     // Preparar links
-    const waText = encodeURIComponent(SHARE_TEXT + '\n' + SHARE_URL);
+    const waText = encodeURIComponent(SHARE_TEXT + '\n' + getShareUrl());
     document.getElementById('share-wa').href = 'https://wa.me/?text=' + waText;
     const mailSubject = encodeURIComponent(SHARE_TITLE);
-    const mailBody = encodeURIComponent(SHARE_TEXT + '\n\n' + SHARE_URL);
+    const mailBody = encodeURIComponent(SHARE_TEXT + '\n\n' + getShareUrl());
     document.getElementById('share-email').href = 'mailto:?subject=' + mailSubject + '&body=' + mailBody;
     popup.classList.add('open');
     // Cerrar al click fuera
@@ -947,7 +948,7 @@ function cierreExternoShare(e) {
 }
 
 function copiarLink() {
-  navigator.clipboard.writeText(SHARE_URL).then(() => {
+  navigator.clipboard.writeText(getShareUrl()).then(() => {
     const el = document.getElementById('share-copied');
     el.classList.add('show');
     setTimeout(() => el.classList.remove('show'), 1800);
@@ -1271,7 +1272,12 @@ function entrarAlTour() {
     loading.style.opacity = '1'; loading.style.visibility = 'visible';
     bar.style.transition = 'left 1.5s ease'; bar.style.left = '0';
     setTimeout(() => {
-      generarPanel(); cargarEscena(ESCENAS[0].id); tourIniciado = true;
+      generarPanel();
+      /* Si la URL tiene hash (#cocina, #jardin, etc), arranca en esa escena */
+      const hash = window.location.hash.replace('#','');
+      const escenaInicial = ESCENAS.find(e => e.id === hash) ? hash : ESCENAS[0].id;
+      cargarEscena(escenaInicial);
+      tourIniciado = true;
       setTimeout(() => {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
@@ -1328,6 +1334,8 @@ function cargarEscena(idEscena) {
   if (!escena) return;
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
+  // Actualizar URL con la escena actual
+  history.replaceState(null, '', '#' + idEscena);
   actualizarMinimap(idEscena);
   aplicarAudioParaEscena(idEscena, true);
   detenerOverlayLightbox();
