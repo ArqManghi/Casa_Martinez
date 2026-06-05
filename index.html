@@ -773,7 +773,7 @@ function toggleMinimap() {
    - Persiste preferencia en localStorage.
 ═══════════════════════════════════════════════════════ */
 const AUDIO_KEY = 'casa_martinez_audio_v1';
-const AUDIO_VOL_MAX = 0.56;         // volumen máximo (sutil)
+const AUDIO_VOL_MAX = 0.65;         // volumen máximo (sutil)
 const AUDIO_FADE_MS = 800;          // crossfade entre escenas
 
 const AUDIO_ESCENA_TIPO = {
@@ -863,7 +863,7 @@ function inicializarAudio() {
 /* ═══════════════════════════════════════════════════════
    INDICADOR PRIMERA VEZ
    Aparece la primera visita al cargar el tour.
-   Se oculta al primer arrastre o a los 5 segundos.
+   Se oculta al primer arrastre o a los 7 segundos.
    Se persiste en localStorage para no molestar visitas siguientes.
 ═══════════════════════════════════════════════════════ */
 const HINT_KEY = 'casa_martinez_tour_visitado_v1';
@@ -878,8 +878,8 @@ function mostrarIndicadorPrimeraVez() {
   const overlay = document.getElementById('hint-overlay');
   overlay.classList.add('show');
 
-  // Auto-ocultar a los 5 segundos
-  hintTimer = setTimeout(ocultarIndicadorPrimeraVez, 5000);
+  // Auto-ocultar a los 7 segundos
+  hintTimer = setTimeout(ocultarIndicadorPrimeraVez, 7000);
 
   // Listeners para ocultar al primer movimiento
   const panorama = document.getElementById('panorama');
