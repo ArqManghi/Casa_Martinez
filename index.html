@@ -4,6 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recorrido Virtual 360°</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Y4YQQZ16K"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0Y4YQQZ16K');
+
+    /* Helper para enviar eventos custom */
+    function gaEvento(nombre, params) {
+      try { gtag('event', nombre, params || {}); } catch(e) {}
+    }
+  </script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js">
 </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
@@ -614,11 +629,11 @@
 </button>
 
 <div id="share-popup">
-  <a class="share-opt" id="share-wa" href="#" target="_blank" rel="noopener" onclick="cerrarSharePopup()">
+  <a class="share-opt" id="share-wa" href="#" target="_blank" rel="noopener" onclick="gaEvento('share_click',{channel:'whatsapp',project:'Casa Martinez'});cerrarSharePopup()">
     <svg viewBox="0 0 24 24" style="fill:#25D366;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span>WhatsApp</span>
   </a>
-  <a class="share-opt" id="share-email" href="#" onclick="cerrarSharePopup()">
+  <a class="share-opt" id="share-email" href="#" onclick="gaEvento('share_click',{channel:'email',project:'Casa Martinez'});cerrarSharePopup()">
     <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--gold);stroke-width:1.6;"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22,7 12,13 2,7"/></svg>
     <span>Email</span>
   </a>
@@ -672,7 +687,7 @@
   <div class="footer-pie" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 0 9px;border-top:0.5px solid rgba(255,255,255,0.07);">
 
     <!-- IZQUIERDA — Renders360 con WhatsApp (contacto del estudio) -->
-    <a class="footer-left-link" href="https://wa.me/5491162413840?text=Hola%2C%20vi%20un%20recorrido%20virtual%20de%20Renders360%20y%20me%20interesa%20uno%20para%20mi%20proyecto." target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+    <a class="footer-left-link" href="https://wa.me/5491162413840?text=Hola%2C%20vi%20un%20recorrido%20virtual%20de%20Renders360%20y%20me%20interesa%20uno%20para%20mi%20proyecto." target="_blank" rel="noopener" onclick="gaEvento('contact_click',{contact_type:'whatsapp_estudio',project:'Casa Martinez'})" style="display:flex;align-items:center;gap:8px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
       <svg class="footer-wa-icon" viewBox="0 0 24 24" width="14" height="14" style="fill:#25D366;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       <span class="footer-logo" style="font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:300;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.5);">Renders<span style="color:#c8a96e;">360</span></span>
       <span class="footer-estudio-sep" style="color:rgba(240,236,228,0.15);font-size:9px;">·</span>
@@ -681,9 +696,9 @@
 
     <!-- DERECHA — Contacto del cliente (WhatsApp + email) -->
     <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
-      <a class="footer-contacto-email" href="mailto:cliente@email.com" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">cliente@email.com</a>
+      <a class="footer-contacto-email" href="mailto:cliente@email.com" onclick="gaEvento('contact_click',{contact_type:'email_cliente',project:'Casa Martinez'})" style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;text-decoration:none;font-family:'Outfit',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">cliente@email.com</a>
       <span class="footer-contacto-sep" style="color:rgba(200,169,110,0.3);font-size:9px;">·</span>
-      <a class="footer-contacto-wa" href="https://wa.me/5491100000000?text=Hola%2C%20vi%20el%20recorrido%20virtual%20de%20Casa%20Martinez%20y%20me%20interesa%20recibir%20m%C3%A1s%20informaci%C3%B3n." target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+      <a class="footer-contacto-wa" href="https://wa.me/5491100000000?text=Hola%2C%20vi%20el%20recorrido%20virtual%20de%20Casa%20Martinez%20y%20me%20interesa%20recibir%20m%C3%A1s%20informaci%C3%B3n." target="_blank" rel="noopener" onclick="gaEvento('contact_click',{contact_type:'whatsapp_cliente',project:'Casa Martinez'})" style="display:flex;align-items:center;gap:6px;text-decoration:none;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
         <svg viewBox="0 0 24 24" width="13" height="13" style="fill:#25D366;flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         <span style="font-size:9px;font-weight:300;letter-spacing:1px;color:#c8a96e;font-family:'Outfit',sans-serif;">+54 9 11 0000-0000</span>
       </a>
@@ -912,7 +927,9 @@ function getShareUrl() { return SHARE_BASE + (escenaActual ? '#' + escenaActual 
 function compartir() {
   // Mobile: usar API nativa
   if (navigator.share) {
-    navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: getShareUrl() }).catch(() => {});
+    navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: getShareUrl() }).then(() => {
+      gaEvento('share_click', { channel: 'native_share', project: 'Casa Martinez' });
+    }).catch(() => {});
     return;
   }
   // Desktop: toggle popup
@@ -948,6 +965,7 @@ function cierreExternoShare(e) {
 }
 
 function copiarLink() {
+  gaEvento('share_click', { channel: 'copy_link', project: 'Casa Martinez' });
   navigator.clipboard.writeText(getShareUrl()).then(() => {
     const el = document.getElementById('share-copied');
     el.classList.add('show');
@@ -1023,6 +1041,7 @@ function aplicarAudioParaEscena(idEscena, fade = true) {
 
 function toggleAudio() {
   audioEncendido = !audioEncendido;
+  gaEvento('audio_toggle', { audio_state: audioEncendido ? 'on' : 'off', project: 'Casa Martinez' });
   const btn = document.getElementById('audio-toggle');
   const { interior, exterior } = audioElements();
 
@@ -1111,6 +1130,7 @@ let lbIndex = 0;
 function abrirLightbox(galeriaId, idx) {
   lbGaleriaActual = GALERIAS[galeriaId];
   if (!lbGaleriaActual) return;
+  gaEvento('lightbox_open', { gallery_id: galeriaId, gallery_title: lbGaleriaActual.titulo, project: 'Casa Martinez' });
   lbIndex = idx || 0;
   document.getElementById('lb-eyebrow').textContent = lbGaleriaActual.eyebrow;
   document.getElementById('lb-title').textContent   = lbGaleriaActual.titulo;
@@ -1264,6 +1284,7 @@ function detenerOverlayLightbox() {
 
 /* — Core — */
 function entrarAlTour() {
+  gaEvento('tour_start', { project: 'Casa Martinez' });
   const intro = document.getElementById('intro');
   const loading = document.getElementById('loading-screen');
   const bar = document.getElementById('loading-bar');
@@ -1334,6 +1355,7 @@ function cargarEscena(idEscena) {
   if (!escena) return;
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
+  gaEvento('scene_view', { scene_name: escena.label, scene_id: idEscena, project: 'Casa Martinez' });
   // Actualizar URL con la escena actual
   history.replaceState(null, '', '#' + idEscena);
   actualizarMinimap(idEscena);
