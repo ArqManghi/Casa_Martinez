@@ -920,6 +920,7 @@ const ESCENAS = [
   {
     id: "frente", label: "Frente", img: "images/frente.jpg",
     pitch: 0, yaw: 0,
+    minYaw: -45, maxYaw: 45,
     hotspots: [
       { targetScene: "living", pitch: -10, yaw: 0, text: "Living" }
     ]
@@ -927,6 +928,7 @@ const ESCENAS = [
   {
     id: "habitacion", label: "Habitación", img: "images/habitacion.jpg",
     pitch: -5, yaw: 0,
+    minYaw: -45, maxYaw: 45,
     hotspots: [
       { targetScene: "dormitorio", pitch: -10, yaw: 0, text: "Dormitorio" }
     ]
@@ -1470,6 +1472,8 @@ function cargarEscena(idEscena) {
     pitch:escena.pitch, yaw:escena.yaw,
     hfov: (window.innerWidth <= 600 ? 75 : 100),
     minHfov:50, maxHfov:120,
+    minYaw: (escena.minYaw !== undefined ? escena.minYaw : -180),
+    maxYaw: (escena.maxYaw !== undefined ? escena.maxYaw :  180),
     hotSpots:[],
     strings:{ loadingLabel:"", bylineLabel:"", noPanoramaError:"No se encontró la imagen.", fileAccessError:"No se pudo cargar: %s", genericWebGLError:"WebGL no soportado.", textureSizeError:"Imagen demasiado grande.", unknownError:"Error desconocido." }
   });
