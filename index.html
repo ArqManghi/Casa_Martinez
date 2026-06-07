@@ -916,6 +916,20 @@ const ESCENAS = [
       { pitch: -2.9, yaw: -33.0, text: "Parrilla · Ver detalle", galeriaId: "parrilla" },
       { pitch: -1.9, yaw: -161.7, text: "Piscina · Ver detalle", galeriaId: "piscina" }
     ]
+  },
+  {
+    id: "frente", label: "Frente", img: "images/frente.jpg",
+    pitch: 0, yaw: 0,
+    hotspots: [
+      { targetScene: "living", pitch: -10, yaw: 0, text: "Living" }
+    ]
+  },
+  {
+    id: "habitacion", label: "Habitación", img: "images/habitacion.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "dormitorio", pitch: -10, yaw: 0, text: "Dormitorio" }
+    ]
   }
 ];
 
@@ -925,9 +939,11 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":  _pct(1600,  600, 329),
-  "cocina":  _pct(1260,  730, 249),
-  "jardin":  _pct(2290,  540, 249)
+  "living":     _pct(1600,  600, 329),
+  "cocina":     _pct(1260,  730, 249),
+  "jardin":     _pct(2290,  540, 249),
+  "frente":     _pct( 500,  300,   0),
+  "habitacion": _pct(1600,  300, 270)
 };
 
 function actualizarMinimap(idEscena) {
@@ -1077,7 +1093,9 @@ const AUDIO_ESCENA_TIPO = {
   cocina: 'interior',
   dormitorio: 'interior',
   bano: 'interior',
-  jardin: 'exterior'
+  jardin: 'exterior',
+  frente: 'exterior',
+  habitacion: 'interior'
 };
 
 let audioEncendido = false;
