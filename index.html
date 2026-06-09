@@ -860,8 +860,16 @@ const GALERIAS = {
     titulo: "Living / Comedor",
     items: [
       { src: "images/living-dia-martinez.png", caption: "Vista del living de día. Carpinterías ampliadas hacia el jardín vertical y conexión visual con el escritorio." },
+      { src: "images/living-dia-martinez-1.png", caption: "Vista alternativa del living de día." },
       { src: "images/living-noche-martinez.png", caption: "Vista nocturna del living. Iluminación cálida con cielorraso embutido y luz puntual sobre el jardín vertical." },
       { src: "images/comedor-cocina-martinez.png", caption: "Vista del comedor integrado con la cocina al fondo. Mesa principal y barra desayunadora." }
+    ]
+  },
+  "frente": {
+    eyebrow: "Vista exterior",
+    titulo: "Frente",
+    items: [
+      { src: "images/Frente.png", caption: "Vista frontal de la vivienda." }
     ]
   },
 };
@@ -916,22 +924,6 @@ const ESCENAS = [
       { pitch: -2.9, yaw: -33.0, text: "Parrilla · Ver detalle", galeriaId: "parrilla" },
       { pitch: -1.9, yaw: -161.7, text: "Piscina · Ver detalle", galeriaId: "piscina" }
     ]
-  },
-  {
-    id: "frente", label: "Frente", img: "images/frente.jpg",
-    pitch: 0, yaw: 0,
-    minYaw: -45, maxYaw: 45,
-    hotspots: [
-      { targetScene: "living", pitch: -10, yaw: 0, text: "Living" }
-    ]
-  },
-  {
-    id: "habitacion", label: "Habitación", img: "images/habitacion.jpg",
-    pitch: -5, yaw: 0,
-    minYaw: -45, maxYaw: 45,
-    hotspots: [
-      { targetScene: "dormitorio", pitch: -10, yaw: 0, text: "Dormitorio" }
-    ]
   }
 ];
 
@@ -943,9 +935,7 @@ function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_
 const MINIMAP_POS = {
   "living":     _pct(1600,  600, 329),
   "cocina":     _pct(1260,  730, 249),
-  "jardin":     _pct(2290,  540, 249),
-  "frente":     _pct( 500,  300,   0),
-  "habitacion": _pct(1600,  300, 270)
+  "jardin":     _pct(2290,  540, 249)
 };
 
 function actualizarMinimap(idEscena) {
@@ -1095,9 +1085,7 @@ const AUDIO_ESCENA_TIPO = {
   cocina: 'interior',
   dormitorio: 'interior',
   bano: 'interior',
-  jardin: 'exterior',
-  frente: 'exterior',
-  habitacion: 'interior'
+  jardin: 'exterior'
 };
 
 let audioEncendido = false;
@@ -1419,24 +1407,31 @@ function volverIntro() {
   document.getElementById('intro').classList.remove('out');
 }
 
+/* Configuración de la botonera inferior */
+const PANEL_ITEMS = [
+  { type: "lightbox", galeriaId: "planta",  label: "Plano",            num: "00" },
+  { type: "lightbox", galeriaId: "frente",  label: "Frente",           num: "01" },
+  { type: "nav",      escenaId:  "living",  label: "Living / Comedor", num: "02" },
+  { type: "nav",      escenaId:  "cocina",  label: "Cocina",           num: "03" },
+  { type: "nav",      escenaId:  "dormitorio", label: "Dormitorio",    num: "04" },
+  { type: "nav",      escenaId:  "jardin",  label: "Jardín",           num: "05" }
+];
+
 function generarPanel() {
   const grid = document.getElementById('scenes-grid');
   if (grid.children.length > 0) return;
+  const estilo = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
 
-  const btnPlano = document.createElement('button');
-  btnPlano.id = 'btn-plano';
-  btnPlano.className = 'btn-planta';
-  btnPlano.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
-  btnPlano.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">00</span>Plano`;
-  btnPlano.onclick = () => abrirLightbox('planta', 0);
-  grid.appendChild(btnPlano);
-
-  ESCENAS.forEach((e, i) => {
+  PANEL_ITEMS.forEach(item => {
     const btn = document.createElement('button');
-    btn.id = 'btn-' + e.id;
-    btn.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
-    btn.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">0${i+1}</span>${e.label}`;
-    btn.onclick = () => irA(e.id);
+    btn.id = 'btn-' + (item.escenaId || item.galeriaId);
+    btn.style.cssText = estilo;
+    btn.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#c8a96e;font-weight:300;opacity:0.6;">${item.num}</span>${item.label}`;
+    if (item.type === 'lightbox') {
+      btn.onclick = () => abrirLightbox(item.galeriaId, 0);
+    } else {
+      btn.onclick = () => irA(item.escenaId);
+    }
     grid.appendChild(btn);
   });
 }
