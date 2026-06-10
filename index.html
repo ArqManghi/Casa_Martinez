@@ -21,19 +21,11 @@
     }
   </script>
 
-  <!-- Pannellum 2.5.7 — incluye fix CVE-2026-27210 (XSS via config JSON malicioso)
-       PASO REQUERIDO: obtener el hash SRI real en https://www.srihash.org
-       URL del JS:  https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js
-       URL del CSS: https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css
-       Reemplazá los dos valores "REEMPLAZAR_CON_HASH_..." con los sha384-xxx que devuelve esa herramienta.
-       Mientras no tengas el hash, podés quitar el atributo integrity temporalmente y el tour sigue funcionando.
-  -->
+  <!-- Pannellum 2.5.7 — fix CVE-2026-27210 -->
   <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"
-    integrity="REEMPLAZAR_CON_HASH_JS_DE_SRIHASH_ORG"
     crossorigin="anonymous"></script>
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css"
-    integrity="REEMPLAZAR_CON_HASH_CSS_DE_SRIHASH_ORG"
     crossorigin="anonymous"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
