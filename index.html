@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.google-analytics.com; media-src 'self'; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com; frame-ancestors 'none';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recorrido Virtual 360°</title>
 
@@ -19,9 +21,20 @@
     }
   </script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.js">
-</script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pannellum/2.5.6/pannellum.css"/>
+  <!-- Pannellum 2.5.7 — incluye fix CVE-2026-27210 (XSS via config JSON malicioso)
+       PASO REQUERIDO: obtener el hash SRI real en https://www.srihash.org
+       URL del JS:  https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js
+       URL del CSS: https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css
+       Reemplazá los dos valores "REEMPLAZAR_CON_HASH_..." con los sha384-xxx que devuelve esa herramienta.
+       Mientras no tengas el hash, podés quitar el atributo integrity temporalmente y el tour sigue funcionando.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"
+    integrity="REEMPLAZAR_CON_HASH_JS_DE_SRIHASH_ORG"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css"
+    integrity="REEMPLAZAR_CON_HASH_CSS_DE_SRIHASH_ORG"
+    crossorigin="anonymous"/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
     :root {
@@ -247,13 +260,11 @@
       stroke-linejoin: round;
       transition: stroke 0.25s;
     }
-    /* Líneas del altavoz: visibles cuando hay sonido */
     #audio-toggle.muted .audio-wave { opacity: 0.25; }
     #audio-toggle.muted .audio-cross { opacity: 1; }
     #audio-toggle .audio-cross { opacity: 0; transition: opacity 0.25s; stroke: rgba(240,236,228,0.5); }
     #audio-toggle .audio-wave { transition: opacity 0.25s; }
 
-    /* Pulse cuando suena */
     #audio-toggle:not(.muted)::before {
       content: '';
       position: absolute;
@@ -272,7 +283,6 @@
       #audio-toggle svg { width: 11px; height: 11px; }
     }
 
-    /* ── BOTÓN DE AUDIO ── (end) */
     /* ── INDICADOR PRIMERA VEZ ── */
     #hint-overlay {
       position: fixed;
@@ -685,12 +695,9 @@
 
 <button id="audio-toggle" class="muted" onclick="toggleAudio()" title="Activar / silenciar sonido">
   <svg viewBox="0 0 24 24">
-    <!-- Altavoz -->
     <path d="M11 5L6 9H3v6h3l5 4V5z"/>
-    <!-- Ondas de sonido (visibles cuando suena) -->
     <path class="audio-wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
     <path class="audio-wave" d="M18.5 5.5a9 9 0 0 1 0 13"/>
-    <!-- Cruz para muted -->
     <line class="audio-cross" x1="23" y1="9" x2="17" y2="15"/>
     <line class="audio-cross" x1="17" y1="9" x2="23" y2="15"/>
   </svg>
@@ -989,7 +996,6 @@ function toggleFullscreen() {
   }
 }
 
-/* Actualizar ícono al entrar/salir de fullscreen */
 document.addEventListener('fullscreenchange', () => {
   const isFS = !!document.fullscreenElement;
   document.getElementById('fs-icon-expand').style.display  = isFS ? 'none' : 'block';
@@ -997,7 +1003,6 @@ document.addEventListener('fullscreenchange', () => {
 });
 
 function inicializarFullscreen() {
-  /* Solo mostrar si el browser soporta fullscreen */
   if (document.documentElement.requestFullscreen) {
     document.getElementById('fullscreen-btn').classList.add('visible');
   }
@@ -1006,8 +1011,6 @@ function inicializarFullscreen() {
 
 /* ═══════════════════════════════════════════════════════
    COMPARTIR
-   Mobile: API nativa (navigator.share)
-   Desktop: popup con WhatsApp, Email, Copiar link
 ═══════════════════════════════════════════════════════ */
 const SHARE_BASE  = 'https://arqmanghi.github.io/Casa_Martinez/';
 const SHARE_TITLE = 'Recorrido Virtual 360° — Casa Martinez';
@@ -1015,27 +1018,23 @@ const SHARE_TEXT  = 'Mirá el recorrido virtual 360° de Casa Martinez';
 function getShareUrl() { return SHARE_BASE + (escenaActual ? '#' + escenaActual : ''); }
 
 function compartir() {
-  // Mobile: usar API nativa
   if (navigator.share) {
     navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: getShareUrl() }).then(() => {
       gaEvento('share_click', { channel: 'native_share', project: 'Casa Martinez' });
     }).catch(() => {});
     return;
   }
-  // Desktop: toggle popup
   const popup = document.getElementById('share-popup');
   const isOpen = popup.classList.contains('open');
   if (isOpen) {
     cerrarSharePopup();
   } else {
-    // Preparar links
     const waText = encodeURIComponent(SHARE_TEXT + '\n' + getShareUrl());
     document.getElementById('share-wa').href = 'https://wa.me/?text=' + waText;
     const mailSubject = encodeURIComponent(SHARE_TITLE);
     const mailBody = encodeURIComponent(SHARE_TEXT + '\n\n' + getShareUrl());
     document.getElementById('share-email').href = 'mailto:?subject=' + mailSubject + '&body=' + mailBody;
     popup.classList.add('open');
-    // Cerrar al click fuera
     setTimeout(() => document.addEventListener('click', cierreExternoShare, { once: true }), 10);
   }
 }
@@ -1071,14 +1070,10 @@ function inicializarShare() {
 
 /* ═══════════════════════════════════════════════════════
    AUDIO AMBIENTE
-   - Apagado por defecto. Se activa con el botón.
-   - Dos pistas: interior (cocina/living/dorm/baño) y exterior (jardín).
-   - Crossfade suave de 800ms al cambiar de escena.
-   - Persiste preferencia en localStorage.
 ═══════════════════════════════════════════════════════ */
 const AUDIO_KEY = 'casa_martinez_audio_v1';
-const AUDIO_VOL_MAX = 0.65;         // volumen máximo (sutil)
-const AUDIO_FADE_MS = 800;          // crossfade entre escenas
+const AUDIO_VOL_MAX = 0.65;
+const AUDIO_FADE_MS = 800;
 
 const AUDIO_ESCENA_TIPO = {
   living: 'interior',
@@ -1105,7 +1100,7 @@ function fadeAudio(el, targetVol, duracion) {
   const step = (now) => {
     const t = Math.min((now - t0) / duracion, 1);
     let v = startVol + (targetVol - startVol) * t;
-    if (v < 0) v = 0; else if (v > 1) v = 1;   // clamp obligatorio
+    if (v < 0) v = 0; else if (v > 1) v = 1;
     el.volume = v;
     if (t < 1) requestAnimationFrame(step);
     else if (targetVol === 0) { try { el.pause(); } catch(e){} }
@@ -1120,7 +1115,6 @@ function aplicarAudioParaEscena(idEscena, fade = true) {
   const target = tipo === 'exterior' ? exterior : interior;
   const otro   = tipo === 'exterior' ? interior : exterior;
 
-  // Reproducir target (si no está sonando)
   try {
     if (target.paused) { target.volume = 0; target.play().catch(()=>{}); }
   } catch(e){}
@@ -1148,16 +1142,12 @@ function toggleAudio() {
 }
 
 function inicializarAudio() {
-  // Mostrar botón
   document.getElementById('audio-toggle').classList.add('visible');
 
-  // Restaurar preferencia previa (si el usuario lo dejó encendido antes)
   let estado = '0';
   try { estado = localStorage.getItem(AUDIO_KEY) || '0'; } catch(e){}
 
   if (estado === '1') {
-    // Algunos browsers requieren interacción previa; intentamos pero si falla
-    // queda apagado hasta que el usuario toque el botón.
     audioEncendido = true;
     document.getElementById('audio-toggle').classList.remove('muted');
     aplicarAudioParaEscena(escenaActual, false);
@@ -1167,26 +1157,20 @@ function inicializarAudio() {
 
 /* ═══════════════════════════════════════════════════════
    INDICADOR PRIMERA VEZ
-   Aparece la primera visita al cargar el tour.
-   Se oculta al primer arrastre o a los 7 segundos.
-   Se persiste en localStorage para no molestar visitas siguientes.
 ═══════════════════════════════════════════════════════ */
 const HINT_KEY = 'casa_martinez_tour_visitado_v1';
 let hintTimer = null;
 let hintActivo = false;
 
 function mostrarIndicadorPrimeraVez() {
-  // Si ya visitó, no mostrar nunca más
   try { if (localStorage.getItem(HINT_KEY)) return; } catch(e) {}
 
   hintActivo = true;
   const overlay = document.getElementById('hint-overlay');
   overlay.classList.add('show');
 
-  // Auto-ocultar a los 7 segundos
   hintTimer = setTimeout(ocultarIndicadorPrimeraVez, 7000);
 
-  // Listeners para ocultar al primer movimiento
   const panorama = document.getElementById('panorama');
   ['mousedown', 'touchstart', 'wheel'].forEach(ev => {
     panorama.addEventListener(ev, ocultarIndicadorPrimeraVez, { once: true, passive: true });
@@ -1200,10 +1184,6 @@ function ocultarIndicadorPrimeraVez() {
   if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
   try { localStorage.setItem(HINT_KEY, '1'); } catch(e) {}
 }
-
-/* Para resetear y volver a ver el indicador (debug):
-   En la consola del browser: localStorage.removeItem('casa_martinez_tour_visitado_v1')
-*/
 
 /* ═══════════════════════════════════════════════════════
    MOTOR
@@ -1384,9 +1364,10 @@ function entrarAlTour() {
     bar.style.transition = 'left 1.5s ease'; bar.style.left = '0';
     setTimeout(() => {
       generarPanel();
-      /* Si la URL tiene hash (#cocina, #jardin, etc), arranca en esa escena */
-      const hash = window.location.hash.replace('#','');
-      const escenaInicial = ESCENAS.find(e => e.id === hash) ? hash : ESCENAS[0].id;
+      /* SEGURIDAD — solo caracteres alfanuméricos/guión; evita inyección via hash */
+      const rawHash = window.location.hash.slice(1);
+      const safeHash = /^[a-z0-9_-]+$/i.test(rawHash) ? rawHash : '';
+      const escenaInicial = ESCENAS.find(e => e.id === safeHash) ? safeHash : ESCENAS[0].id;
       cargarEscena(escenaInicial);
       tourIniciado = true;
       setTimeout(() => {
@@ -1438,7 +1419,6 @@ function generarPanel() {
 
 function irA(idEscena) {
   if (idEscena === escenaActual) return;
-  // Si el hint sigue activo y el usuario cambia escena, ocultarlo
   if (hintActivo) ocultarIndicadorPrimeraVez();
   const overlay = document.getElementById('transition-overlay');
   overlay.style.opacity = '1'; overlay.style.pointerEvents = 'all';
@@ -1454,7 +1434,6 @@ function cargarEscena(idEscena) {
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
   gaEvento('scene_view', { scene_name: escena.label, scene_id: idEscena, project: 'Casa Martinez' });
-  // Actualizar URL con la escena actual
   history.replaceState(null, '', '#' + idEscena);
   actualizarMinimap(idEscena);
   aplicarAudioParaEscena(idEscena, true);
