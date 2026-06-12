@@ -1037,17 +1037,15 @@ function toggleMinimap() {
    Rota automáticamente y pasa de escena cada N segundos.
    Se detiene al interactuar con el panorama.
 ═══════════════════════════════════════════════════════ */
-const AUTOPLAY_DURACION = 15000;  // milisegundos por escena
-const AUTOPLAY_VELOCIDAD = -3;    // grados/seg de rotación (más rápido que normal)
+const AUTOPLAY_DURACION = 30000;  // milisegundos por escena (30 seg)
+const AUTOPLAY_VELOCIDAD = -3;    // grados/seg de rotación
+
+/* Secuencia del autoplay — solo escenas con 360 real.
+   Editá este array para agregar o quitar escenas del recorrido guiado. */
+const AUTOPLAY_SECUENCIA = ['living', 'cocina', 'jardin'];
+
 let autoplayActivo = false;
 let autoplayTimer = null;
-let autoplayEscenas = []; // se llena con las escenas nav del PANEL_ITEMS
-
-function getAutoplayEscenas() {
-  if (autoplayEscenas.length > 0) return autoplayEscenas;
-  autoplayEscenas = PANEL_ITEMS.filter(p => p.type === 'nav').map(p => p.escenaId);
-  return autoplayEscenas;
-}
 
 function toggleAutoplay() {
   if (autoplayActivo) {
@@ -1109,9 +1107,8 @@ function programarSiguienteEscena() {
   if (!autoplayActivo) return;
   autoplayTimer = setTimeout(() => {
     if (!autoplayActivo) return;
-    const escenas = getAutoplayEscenas();
-    const idx = escenas.indexOf(escenaActual);
-    const siguiente = escenas[(idx + 1) % escenas.length];
+    const idx = AUTOPLAY_SECUENCIA.indexOf(escenaActual);
+    const siguiente = AUTOPLAY_SECUENCIA[(idx + 1) % AUTOPLAY_SECUENCIA.length];
     autoplayNavegando = true;
     irA(siguiente);
     autoplayNavegando = false;
