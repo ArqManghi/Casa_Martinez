@@ -73,6 +73,54 @@
     .corner-bl { bottom:32px; left:32px; border-bottom:1px solid var(--gold-border); border-left:1px solid var(--gold-border); }
     .corner-br { bottom:32px; right:32px; border-bottom:1px solid var(--gold-border); border-right:1px solid var(--gold-border); }
 
+    /* ── BOTÓN AUTOPLAY ── */
+    #autoplay-btn {
+      position: fixed;
+      bottom: 275px;
+      left: 36px;
+      z-index: 200;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(8,8,8,0.55);
+      border: 1px solid rgba(200,169,110,0.3);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    #autoplay-btn.visible { opacity: 1; pointer-events: all; }
+    #autoplay-btn:hover {
+      border-color: var(--gold);
+      background: rgba(200,169,110,0.12);
+      transform: scale(1.08);
+    }
+    #autoplay-btn svg {
+      width: 15px; height: 15px;
+      fill: var(--gold);
+      stroke: none;
+    }
+    #autoplay-btn.playing {
+      border-color: var(--gold);
+      background: rgba(200,169,110,0.15);
+    }
+    #autoplay-btn.playing::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 1px solid rgba(200,169,110,0.4);
+      animation: audio-pulse 2.4s ease-out infinite;
+    }
+    @media (max-width: 600px) {
+      #autoplay-btn { bottom: 195px; left: 12px; width: 28px; height: 28px; }
+      #autoplay-btn svg { width: 11px; height: 11px; }
+    }
+
     /* ── BOTÓN FULLSCREEN ── */
     #fullscreen-btn {
       position: fixed;
@@ -657,6 +705,12 @@
 <audio id="audio-interior" loop preload="none" src="audio/ambiente-interior.mp3"></audio>
 <audio id="audio-exterior" loop preload="none" src="audio/ambiente-exterior.mp3"></audio>
 
+<!-- AUTOPLAY -->
+<button id="autoplay-btn" onclick="toggleAutoplay()" title="Recorrido guiado">
+  <svg id="autoplay-icon-play" viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21"/></svg>
+  <svg id="autoplay-icon-pause" viewBox="0 0 24 24" style="display:none;"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+</button>
+
 <!-- COMPARTIR -->
 <button id="share-btn" onclick="compartir()" title="Compartir recorrido">
   <svg viewBox="0 0 24 24">
@@ -978,6 +1032,111 @@ function toggleMinimap() {
 /* ═══════════════════════════════════════════════════════
    FULLSCREEN
 ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   AUTOPLAY — Recorrido guiado
+   Rota automáticamente y pasa de escena cada N segundos.
+   Se detiene al interactuar con el panorama.
+═══════════════════════════════════════════════════════ */
+const AUTOPLAY_DURACION = 15000;  // milisegundos por escena
+const AUTOPLAY_VELOCIDAD = -3;    // grados/seg de rotación (más rápido que normal)
+let autoplayActivo = false;
+let autoplayTimer = null;
+let autoplayEscenas = []; // se llena con las escenas nav del PANEL_ITEMS
+
+function getAutoplayEscenas() {
+  if (autoplayEscenas.length > 0) return autoplayEscenas;
+  autoplayEscenas = PANEL_ITEMS.filter(p => p.type === 'nav').map(p => p.escenaId);
+  return autoplayEscenas;
+}
+
+function toggleAutoplay() {
+  if (autoplayActivo) {
+    detenerAutoplay();
+  } else {
+    iniciarAutoplay();
+  }
+}
+
+function iniciarAutoplay() {
+  autoplayActivo = true;
+  const btn = document.getElementById('autoplay-btn');
+  btn.classList.add('playing');
+  document.getElementById('autoplay-icon-play').style.display = 'none';
+  document.getElementById('autoplay-icon-pause').style.display = 'block';
+
+  gaEvento('autoplay_toggle', { state: 'start', project: 'Casa Martinez' });
+
+  // Forzar autorotate más rápido
+  if (visor) {
+    visor.setAutoRotate(AUTOPLAY_VELOCIDAD);
+    visor.startAutoRotate(AUTOPLAY_VELOCIDAD);
+  }
+
+  // Timer para siguiente escena
+  programarSiguienteEscena();
+
+  // Listener para detener al interactuar
+  const panorama = document.getElementById('panorama');
+  ['mousedown', 'touchstart'].forEach(ev => {
+    panorama.addEventListener(ev, detenerAutoplayPorInteraccion, { passive: true });
+  });
+}
+
+function detenerAutoplay() {
+  autoplayActivo = false;
+  if (autoplayTimer) { clearTimeout(autoplayTimer); autoplayTimer = null; }
+
+  const btn = document.getElementById('autoplay-btn');
+  btn.classList.remove('playing');
+  document.getElementById('autoplay-icon-play').style.display = 'block';
+  document.getElementById('autoplay-icon-pause').style.display = 'none';
+
+  // Restaurar autorotate normal
+  if (visor) {
+    visor.setAutoRotate(-1.5);
+  }
+
+  // Quitar listeners
+  const panorama = document.getElementById('panorama');
+  ['mousedown', 'touchstart'].forEach(ev => {
+    panorama.removeEventListener(ev, detenerAutoplayPorInteraccion);
+  });
+}
+
+function detenerAutoplayPorInteraccion() {
+  if (autoplayActivo) {
+    gaEvento('autoplay_toggle', { state: 'interrupted', project: 'Casa Martinez' });
+    detenerAutoplay();
+  }
+}
+
+function programarSiguienteEscena() {
+  if (!autoplayActivo) return;
+  autoplayTimer = setTimeout(() => {
+    if (!autoplayActivo) return;
+    const escenas = getAutoplayEscenas();
+    const idx = escenas.indexOf(escenaActual);
+    const siguiente = escenas[(idx + 1) % escenas.length];
+    autoplayNavegando = true;
+    irA(siguiente);
+    autoplayNavegando = false;
+    // Después de la transición, reactivar autorotate rápido y programar siguiente
+    setTimeout(() => {
+      if (!autoplayActivo) return;
+      if (visor) {
+        visor.setAutoRotate(AUTOPLAY_VELOCIDAD);
+        visor.startAutoRotate(AUTOPLAY_VELOCIDAD);
+      }
+      programarSiguienteEscena();
+    }, 1200); // espera a que cargue la escena + transición
+  }, AUTOPLAY_DURACION);
+}
+
+function inicializarAutoplay() {
+  document.getElementById('autoplay-btn').classList.add('visible');
+}
+
+
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(() => {});
@@ -1369,6 +1528,7 @@ function entrarAlTour() {
         inicializarAudio();
         inicializarShare();
         inicializarFullscreen();
+        inicializarAutoplay();
         setTimeout(mostrarIndicadorPrimeraVez, 600);
       }, 800);
     }, 1400);
@@ -1409,8 +1569,12 @@ function generarPanel() {
   });
 }
 
+let autoplayNavegando = false; // flag para distinguir navegación del autoplay vs manual
+
 function irA(idEscena) {
   if (idEscena === escenaActual) return;
+  // Si el usuario navega manualmente durante autoplay, detenerlo
+  if (autoplayActivo && !autoplayNavegando) detenerAutoplay();
   if (hintActivo) ocultarIndicadorPrimeraVez();
   const overlay = document.getElementById('transition-overlay');
   overlay.style.opacity = '1'; overlay.style.pointerEvents = 'all';
