@@ -1066,11 +1066,8 @@ function iniciarAutoplay() {
 
   gaEvento('autoplay_toggle', { state: 'start', project: 'Casa Martinez' });
 
-  // Forzar autorotate más rápido
-  if (visor) {
-    visor.setAutoRotate(AUTOPLAY_VELOCIDAD);
-    visor.startAutoRotate(AUTOPLAY_VELOCIDAD);
-  }
+  // Forzar autorotate
+  try { if (visor) visor.startAutoRotate(AUTOPLAY_VELOCIDAD); } catch(e) {}
 
   // Timer para siguiente escena
   programarSiguienteEscena();
@@ -1092,9 +1089,7 @@ function detenerAutoplay() {
   document.getElementById('autoplay-icon-pause').style.display = 'none';
 
   // Restaurar autorotate normal
-  if (visor) {
-    visor.setAutoRotate(-1.5);
-  }
+  try { if (visor) visor.startAutoRotate(-1.5); } catch(e) {}
 
   // Quitar listeners
   const panorama = document.getElementById('panorama');
@@ -1123,10 +1118,7 @@ function programarSiguienteEscena() {
     // Después de la transición, reactivar autorotate rápido y programar siguiente
     setTimeout(() => {
       if (!autoplayActivo) return;
-      if (visor) {
-        visor.setAutoRotate(AUTOPLAY_VELOCIDAD);
-        visor.startAutoRotate(AUTOPLAY_VELOCIDAD);
-      }
+      try { if (visor) visor.startAutoRotate(AUTOPLAY_VELOCIDAD); } catch(e) {}
       programarSiguienteEscena();
     }, 1200); // espera a que cargue la escena + transición
   }, AUTOPLAY_DURACION);
