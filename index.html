@@ -656,8 +656,8 @@
 <div id="panorama" style="width:100%;height:100vh;display:block;"></div>
 
 <!-- AUDIO AMBIENTE -->
-<audio id="audio-interior" loop preload="none" src="audio/ambiente-interior.mp3"></audio>
-<audio id="audio-exterior" loop preload="none" src="audio/ambiente-exterior.mp3"></audio>
+<audio id="audio-interior" loop preload="auto" src="audio/ambiente-interior.mp3"></audio>
+<audio id="audio-exterior" loop preload="auto" src="audio/ambiente-exterior.mp3"></audio>
 
 <!-- COMPARTIR -->
 <button id="share-btn" onclick="compartir()" title="Compartir recorrido">
@@ -1111,8 +1111,11 @@ function aplicarAudioParaEscena(idEscena, fade = true) {
   const otro   = tipo === 'exterior' ? interior : exterior;
 
   try {
-    if (target.paused) { target.volume = 0; target.play().catch(()=>{}); }
-  } catch(e){}
+    if (target.paused) {
+      target.volume = 0;
+      target.play().then(() => console.log('Audio playing:', tipo)).catch(err => console.warn('Audio play error:', err));
+    }
+  } catch(e){ console.warn('Audio exception:', e); }
 
   const vol = tipo === 'exterior' ? AUDIO_VOL_EXTERIOR : AUDIO_VOL_INTERIOR;
   fadeAudio(target, vol, fade ? AUDIO_FADE_MS : 0);
@@ -1121,6 +1124,7 @@ function aplicarAudioParaEscena(idEscena, fade = true) {
 
 function toggleAudio() {
   audioEncendido = !audioEncendido;
+  console.log('Audio toggle:', audioEncendido ? 'ON' : 'OFF', 'Escena:', escenaActual);
   gaEvento('audio_toggle', { audio_state: audioEncendido ? 'on' : 'off', project: 'Casa Martinez' });
   const btn = document.getElementById('audio-toggle');
   const { interior, exterior } = audioElements();
