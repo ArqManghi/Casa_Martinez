@@ -1066,7 +1066,8 @@ function inicializarShare() {
    AUDIO AMBIENTE
 ═══════════════════════════════════════════════════════ */
 const AUDIO_KEY = 'casa_martinez_audio_v1';
-const AUDIO_VOL_MAX = 0.80;
+const AUDIO_VOL_INTERIOR = 0.88;   // +35% respecto al anterior
+const AUDIO_VOL_EXTERIOR = 0.65;   // se mantiene
 const AUDIO_FADE_MS = 800;
 
 const AUDIO_ESCENA_TIPO = {
@@ -1113,7 +1114,8 @@ function aplicarAudioParaEscena(idEscena, fade = true) {
     if (target.paused) { target.volume = 0; target.play().catch(()=>{}); }
   } catch(e){}
 
-  fadeAudio(target, AUDIO_VOL_MAX, fade ? AUDIO_FADE_MS : 0);
+  const vol = tipo === 'exterior' ? AUDIO_VOL_EXTERIOR : AUDIO_VOL_INTERIOR;
+  fadeAudio(target, vol, fade ? AUDIO_FADE_MS : 0);
   fadeAudio(otro,   0,             fade ? AUDIO_FADE_MS : 0);
 }
 
