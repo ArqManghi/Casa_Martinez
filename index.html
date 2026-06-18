@@ -695,7 +695,7 @@
 
 <div id="transition-overlay" style="position:fixed;inset:0;background:#080808;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.35s ease;"></div>
 
-<header id="tour-header" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;opacity:0;transition:opacity 0.6s ease;">;pointer-events:none;">
+<header id="tour-header" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;opacity:0;transition:opacity 0.6s ease;">
   <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:4px;text-transform:uppercase;pointer-events:all;cursor:pointer;" onclick="volverIntro()" class="header-logo">Renders<span style="color:#c8a96e;">360</span></div>
   <div style="text-align:center;">
     <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);">Casa Martinez</div>
@@ -777,7 +777,7 @@
   </div>
 </div>
 
-<div class="bottom-panel-wrap" style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 0;">
+<div id="bottom-panel" class="bottom-panel-wrap" style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 0;opacity:0;transition:opacity 0.6s ease;">
 
   <!-- AMBIENTES -->
   <div class="bottom-panel-label" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
@@ -1528,6 +1528,7 @@ function entrarAlTour() {
       setTimeout(() => {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         document.getElementById('tour-header').style.opacity = '1';
+        document.getElementById('bottom-panel').style.opacity = '1';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
         if (!minimapConeRAF) loopMinimapCone();
         inicializarAudio();
