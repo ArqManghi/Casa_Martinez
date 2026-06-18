@@ -1529,6 +1529,7 @@ function entrarAlTour() {
         loading.style.opacity='0'; loading.style.visibility='hidden';
         document.getElementById('tour-header').style.opacity = '1';
         document.getElementById('bottom-panel').style.opacity = '1';
+        document.getElementById('tour-header').style.opacity = '1';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
         if (!minimapConeRAF) loopMinimapCone();
         inicializarAudio();
@@ -1601,8 +1602,8 @@ function cargarEscena(idEscena) {
     autoLoad:true, autoRotate:-1.5, autoRotateInactivityDelay:4000,
     compass:false, showFullscreenCtrl:false, showZoomCtrl:false,
     pitch:escena.pitch, yaw:escena.yaw,
-    hfov: (window.innerWidth <= 600 ? 75 : 100),
-    minHfov:50, maxHfov:120,
+    hfov: (window.innerWidth <= 600 ? 55 : 100),
+    minHfov: (window.innerWidth <= 600 ? 40 : 50), maxHfov:120,
     minYaw: (escena.minYaw !== undefined ? escena.minYaw : -180),
     maxYaw: (escena.maxYaw !== undefined ? escena.maxYaw :  180),
     hotSpots:[],
