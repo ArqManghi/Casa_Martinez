@@ -1527,6 +1527,7 @@ function entrarAlTour() {
       tourIniciado = true;
       setTimeout(() => {
         loading.style.opacity='0'; loading.style.visibility='hidden';
+        document.getElementById('tour-header').style.opacity = '1';
         const mm = document.getElementById('minimap'); mm.style.opacity='1'; mm.style.pointerEvents='all';
         if (!minimapConeRAF) loopMinimapCone();
         inicializarAudio();
