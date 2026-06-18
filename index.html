@@ -459,14 +459,63 @@
       .header-center-title { font-size: 11px !important; letter-spacing: 2px !important; }
       #scene-label { font-size: 9px !important; letter-spacing: 1.5px !important; margin-top: 1px !important; }
 
-      /* ── PANEL INFERIOR — compacto ── */
-      .bottom-panel-wrap { padding: 18px 14px 8px !important; }
+      /* ── PANEL INFERIOR MOBILE — colapsable ── */
+      .bottom-panel-wrap { padding: 0 !important; background: rgba(8,8,8,0.98) !important; }
       .bottom-panel-label { display: none !important; }
-      #scenes-grid { gap: 5px !important; }
-      #scenes-grid button { padding: 5px 9px !important; font-size: 10px !important; gap: 5px !important; }
-      #scenes-grid button span { font-size: 11px !important; }
-      .btn-planta { padding: 5px 9px !important; font-size: 10px !important; }
-      .footer-pie { padding: 6px 0 8px !important; }
+      #scenes-grid-wrap { display: none !important; }
+
+      #mobile-panel-trigger {
+        display: flex !important;
+        align-items: center; justify-content: space-between;
+        padding: 10px 16px; cursor: pointer;
+        border-top: 0.5px solid rgba(255,255,255,0.07);
+        user-select: none;
+      }
+      #mobile-trigger-scene {
+        font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+        color: var(--gold); font-family: 'Outfit', sans-serif; font-weight: 300;
+      }
+      #mobile-trigger-label {
+        font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(240,236,228,0.3); font-family: 'Outfit', sans-serif; font-weight: 300;
+      }
+      #mobile-trigger-arrow {
+        width: 16px; height: 16px; flex-shrink: 0;
+        fill: none; stroke: rgba(200,169,110,0.6);
+        stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+        transition: transform 0.3s ease;
+      }
+      #mobile-panel-trigger.open #mobile-trigger-arrow { transform: rotate(180deg); }
+
+      #mobile-panel-content {
+        display: block !important;
+        max-height: 0; overflow: hidden;
+        transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+      }
+      #mobile-panel-content.open { max-height: 320px; }
+
+      #mobile-panel-inner { padding: 10px 14px 12px; border-top: 0.5px solid rgba(255,255,255,0.05); }
+
+      #mobile-scenes-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+      #mobile-scenes-grid button {
+        display: flex; align-items: center; gap: 6px;
+        padding: 6px 10px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 3px; cursor: pointer;
+        color: rgba(240,236,228,0.45);
+        font-size: 10px; font-weight: 300; letter-spacing: 1px;
+        font-family: 'Outfit', sans-serif; transition: all 0.25s;
+      }
+      #mobile-scenes-grid button.active {
+        border-color: rgba(200,169,110,0.5);
+        color: var(--gold); background: rgba(200,169,110,0.07);
+      }
+      #mobile-scenes-grid button span {
+        font-family: 'Cormorant Garamond', serif; font-size: 13px;
+        color: #c8a96e; font-weight: 300; opacity: 0.6;
+      }
+      .footer-pie { padding: 8px 14px !important; border-top: 0.5px solid rgba(255,255,255,0.07) !important; }
       .footer-estudio-sep { display: none !important; }
       .footer-estudio-name { display: none !important; }
       .footer-logo { font-size: 11px !important; letter-spacing: 2px !important; }
@@ -669,7 +718,7 @@
     <h1 class="intro-titulo">Casa Martinez</h1>
     <p class="intro-subtitulo">Recorrido Virtual 360°</p>
     <div class="intro-meta">
-      <span class="intro-meta-item">Ampliación</span>
+      <span class="intro-meta-item">3 ambientes</span>
       <div class="intro-meta-dot"></div>
       <span class="intro-meta-item">Martinez</span>
       <div class="intro-meta-dot"></div>
@@ -779,10 +828,24 @@
 
 <div id="bottom-panel" class="bottom-panel-wrap" style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:linear-gradient(to top,rgba(8,8,8,0.98) 60%,transparent);padding:40px 36px 0;opacity:0;transition:opacity 0.6s ease;">
 
-  <!-- AMBIENTES -->
+  <!-- AMBIENTES — desktop -->
   <div class="bottom-panel-label" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.2);margin-bottom:14px;font-weight:400;">Ambientes del proyecto</div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+  <div id="scenes-grid-wrap" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
     <div id="scenes-grid" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;"></div>
+  </div>
+
+  <!-- PANEL MOBILE COLAPSABLE -->
+  <div id="mobile-panel-trigger" style="display:none;" onclick="toggleMobilePanel()">
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <div id="mobile-trigger-label">Ambientes del proyecto</div>
+      <div id="mobile-trigger-scene">—</div>
+    </div>
+    <svg id="mobile-trigger-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div id="mobile-panel-content">
+    <div id="mobile-panel-inner">
+      <div id="mobile-scenes-grid"></div>
+    </div>
   </div>
 
   <!-- PIE DE INTERFAZ -->
@@ -1558,10 +1621,12 @@ const PANEL_ITEMS = [
 
 function generarPanel() {
   const grid = document.getElementById('scenes-grid');
+  const mobileGrid = document.getElementById('mobile-scenes-grid');
   if (grid.children.length > 0) return;
   const estilo = "display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:3px;cursor:pointer;color:rgba(240,236,228,0.45);font-size:12px;font-weight:300;letter-spacing:1px;font-family:Outfit,sans-serif;transition:all 0.25s;";
 
   PANEL_ITEMS.forEach(item => {
+    /* Desktop */
     const btn = document.createElement('button');
     btn.id = 'btn-' + (item.escenaId || item.galeriaId);
     btn.style.cssText = estilo;
@@ -1572,7 +1637,42 @@ function generarPanel() {
       btn.onclick = () => irA(item.escenaId);
     }
     grid.appendChild(btn);
+
+    /* Mobile */
+    const mbtn = document.createElement('button');
+    mbtn.id = 'mbtn-' + (item.escenaId || item.galeriaId);
+    mbtn.innerHTML = `<span>${item.num}</span>${item.label}`;
+    if (item.type === 'lightbox') {
+      mbtn.onclick = () => { cerrarMobilePanel(); abrirLightbox(item.galeriaId, 0); };
+    } else {
+      mbtn.onclick = () => { cerrarMobilePanel(); irA(item.escenaId); };
+    }
+    mobileGrid.appendChild(mbtn);
   });
+}
+
+function toggleMobilePanel() {
+  const trigger = document.getElementById('mobile-panel-trigger');
+  const content = document.getElementById('mobile-panel-content');
+  trigger.classList.toggle('open');
+  content.classList.toggle('open');
+}
+
+function cerrarMobilePanel() {
+  document.getElementById('mobile-panel-trigger').classList.remove('open');
+  document.getElementById('mobile-panel-content').classList.remove('open');
+}
+
+function actualizarMobileTrigger(idEscena) {
+  const el = document.getElementById('mobile-trigger-scene');
+  if (!el) return;
+  const escena = ESCENAS.find(e => e.id === idEscena);
+  const item = PANEL_ITEMS.find(p => p.escenaId === idEscena || p.galeriaId === idEscena);
+  el.textContent = escena ? escena.label : (item ? item.label : '—');
+  /* Marcar botón activo */
+  document.querySelectorAll('#mobile-scenes-grid button').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById('mbtn-' + idEscena);
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 function irA(idEscena) {
@@ -1594,6 +1694,7 @@ function cargarEscena(idEscena) {
   gaEvento('scene_view', { scene_name: escena.label, scene_id: idEscena, project: 'Casa Martinez' });
   history.replaceState(null, '', '#' + idEscena);
   actualizarMinimap(idEscena);
+  actualizarMobileTrigger(idEscena);
   aplicarAudioParaEscena(idEscena, true);
   detenerOverlayLightbox();
   if (visor) { try { visor.destroy(); } catch(e) {} visor = null; }
