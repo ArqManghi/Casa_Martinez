@@ -455,7 +455,7 @@
       /* ── HEADER — compacto, ocultar "Tour Virtual" y logo ── */
       header { padding: 10px 16px !important; justify-content: center !important; }
       .header-tour-label { display: none !important; }
-      .header-logo { display: none !important; }
+      .header-logo { font-size: 9px !important; letter-spacing: 1.5px !important; }
       .header-center-title { font-size: 11px !important; letter-spacing: 2px !important; }
       #scene-label { font-size: 9px !important; letter-spacing: 1.5px !important; margin-top: 1px !important; }
 
@@ -749,7 +749,7 @@
 <div id="transition-overlay" style="position:fixed;inset:0;background:#080808;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.35s ease;"></div>
 
 <header id="tour-header" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;opacity:0;transition:opacity 0.6s ease;">
-  <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:4px;text-transform:uppercase;pointer-events:all;cursor:pointer;" onclick="volverIntro()" class="header-logo">Renders<span style="color:#c8a96e;">360</span></div>
+  <div onclick="volverIntro()" class="header-logo" style="cursor:pointer;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.3);font-weight:300;pointer-events:all;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg>Inicio</div>
   <div style="text-align:center;">
     <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);" class="header-center-title">Casa Martinez</div>
     <div id="scene-label" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c8a96e;font-weight:300;margin-top:3px;">Living / Comedor</div>
