@@ -39,7 +39,7 @@
       --text-faint: rgba(240,236,228,0.2);
       --border: rgba(255,255,255,0.07);
     }
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
     #intro { position:fixed; inset:0; z-index:2000; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; transition:opacity 1.2s ease, visibility 1.2s; }
@@ -452,10 +452,10 @@
       .corner-bl { bottom: 14px; left: 14px; }
       .corner-br { bottom: 14px; right: 14px; }
 
-      /* ── HEADER — compacto, ocultar "Tour Virtual" y logo ── */
-      header { padding: 10px 16px !important; justify-content: center !important; }
+      /* ── HEADER — compacto, ocultar "Tour Virtual" ── */
+      header { padding: 10px 16px !important; }
       .header-tour-label { display: none !important; }
-      .header-logo { display: none !important; }
+      .header-logo { font-size: 16px !important; letter-spacing: 2px !important; }
       .header-center-title { font-size: 11px !important; letter-spacing: 2px !important; }
       #scene-label { font-size: 9px !important; letter-spacing: 1.5px !important; margin-top: 1px !important; }
 
@@ -701,10 +701,6 @@
       .hs-circle.hs-lb .hs-icon { width: 22px; height: 22px; }
       .hs-circle .hs-tooltip { font-size: 9px; padding: 4px 8px; letter-spacing: 1.2px; }
     }
-
-    /* ── Ocultar controles nativos de Pannellum ── */
-    .pnlm-controls-container { display: none !important; }
-    .pnlm-about-msg { display: none !important; }
 </style>
 </head>
 <body>
@@ -749,9 +745,9 @@
 <div id="transition-overlay" style="position:fixed;inset:0;background:#080808;z-index:500;opacity:0;pointer-events:none;transition:opacity 0.35s ease;"></div>
 
 <header id="tour-header" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:linear-gradient(to bottom,rgba(8,8,8,0.95),transparent);pointer-events:none;opacity:0;transition:opacity 0.6s ease;">
-  <div onclick="volverIntro()" class="header-logo" style="cursor:pointer;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.3);font-weight:300;pointer-events:all;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="12" height="12" style="fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg>Inicio</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:4px;text-transform:uppercase;pointer-events:all;cursor:pointer;" onclick="volverIntro()" class="header-logo">Renders<span style="color:#c8a96e;">360</span></div>
   <div style="text-align:center;">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);" class="header-center-title">Casa Martinez</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;letter-spacing:3px;text-transform:uppercase;color:rgba(240,236,228,0.45);">Casa Martinez</div>
     <div id="scene-label" style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#c8a96e;font-weight:300;margin-top:3px;">Living / Comedor</div>
   </div>
   <div class="header-tour-label" style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.45);font-weight:300;">Tour Virtual</div>
@@ -776,7 +772,7 @@
 
 <div id="share-popup">
   <a class="share-opt" id="share-wa" href="#" target="_blank" rel="noopener" onclick="gaEvento('share_click',{channel:'whatsapp',project:'Casa Martinez'});cerrarSharePopup()">
-    <svg viewBox="0 0 24 24" style="fill:var(--gold);stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <svg viewBox="0 0 24 24" style="fill:#25D366;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     <span>WhatsApp</span>
   </a>
   <button class="share-opt" onclick="copiarLink()">
@@ -846,7 +842,7 @@
     </div>
     <svg id="mobile-trigger-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
-  <div id="mobile-panel-content" style="display:none;">
+  <div id="mobile-panel-content">
     <div id="mobile-panel-inner">
       <div id="mobile-scenes-grid"></div>
     </div>
@@ -945,9 +941,9 @@ const GALERIAS = {
     eyebrow: "Detalle de ambiente",
     titulo: "Cocina",
     items: [
-      { src: "images/cocina-dia.png", caption: "Vista interior de la cocina. Isla central. Revestimientos Dekton y porcellanato." },
-      { src: "images/cocina-noche.png", caption: "Vista nocturna de la cocina con iluminación led." },
-      { src: "images/moodboard-cocina.png", caption: "Lámina técnica de materiales y texturas." }
+      { src: "images/cocina-martinez-dia.png", caption: "Vista interior de la cocina. Isla central. Revestimientos Dekton y porcellanato." },
+      { src: "images/cocina-martinez-noche.png", caption: "Vista nocturna de la cocina con iluminación led." },
+      { src: "images/cocinadetalle.png", caption: "Lámina técnica de materiales y texturas." }
     ]
   },
   "piscina": {
@@ -955,13 +951,6 @@ const GALERIAS = {
     titulo: "Pileta",
     items: [
       { src: "images/piscina-detalle.png", caption: "Vista jardin y piscina." }
-   ]
-  },
-  "piscina": {
-    eyebrow: "Detalle de piscina",
-    titulo: "Pileta",
-    items: [
-      { src: "images/piscina-detalle01.png", caption: "Vista jardin y piscina." }
    ]
   },
   "planta": {
@@ -976,10 +965,10 @@ const GALERIAS = {
     eyebrow: "Detalle de ambiente",
     titulo: "Living / Comedor",
     items: [
-      { src: "images/living-dia.png", caption: "Vista del living de día. Carpinterías ampliadas hacia el jardín vertical y conexión visual con el escritorio." },
-      { src: "images/living-noche.png", caption: "Vista alternativa del living de noche. Iluminación cálida con cielorraso embutido y luz puntual sobre el jardín vertical." },
-      { src: "images/comedor-living.png", caption: "Vista del comedor." },
-      { src: "images/moodboard-living.png", caption: "Paleta de texturas y colores empleados en el living - comedor." }
+      { src: "images/living-dia-martinez.png", caption: "Vista del living de día. Carpinterías ampliadas hacia el jardín vertical y conexión visual con el escritorio." },
+      { src: "images/dia_living_martinez-1.png", caption: "Vista alternativa del living de día." },
+      { src: "images/living-noche-martinez.png", caption: "Vista nocturna del living. Iluminación cálida con cielorraso embutido y luz puntual sobre el jardín vertical." },
+      { src: "images/comedor-cocina-martinez.png", caption: "Vista del comedor integrado con la cocina al fondo. Mesa principal y barra desayunadora." }
     ]
   },
   "frente": {
@@ -999,21 +988,21 @@ const ESCENAS = [
     id: "living", label: "Living / Comedor", img: "images/living.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "cocina", pitch: -2.4, yaw: -6, text: "Cocina" },
-      { targetScene: "jardin", pitch: -5.1, yaw: -145.5, text: "Jardín" }
+      { targetScene: "cocina",  pitch: -15.5, yaw: -114.5, text: "Cocina" },
+      { targetScene: "jardin",  pitch: -12.7, yaw: 82.2,   text: "Jardín" }
     ],
     hotspotsLightbox: [
-      { pitch: -23.9, yaw: 118.5, text: "Living · Ver vistas", galeriaId: "living" }
+      { pitch: -11.3, yaw: -15.3, text: "Living · Ver vistas", galeriaId: "living" }
     ]
   },
   {
     id: "cocina", label: "Cocina", img: "images/cocina.jpg",
     pitch: -5, yaw: 0,
     hotspots: [
-      { targetScene: "living", pitch: -8.3, yaw: 24.8, text: "Living" }
+      { targetScene: "living", pitch: -3.9, yaw: 168.8, text: "Living" }
     ],
     hotspotsLightbox: [
-      { pitch: -22.9, yaw: -174.2, text: "Cocina · Ver detalle", galeriaId: "cocina" }
+      { pitch: -11.3, yaw: -48.4, text: "Cocina · Ver detalle", galeriaId: "cocina" }
     ]
   },
   {
@@ -1021,7 +1010,7 @@ const ESCENAS = [
     pitch: -5, yaw: 0,
     hotspots: [
       { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
-      { targetScene: "bano", pitch: -10, yaw: -30, text: "Baño Suite" }
+      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" }
     ]
   },
   {
@@ -1035,11 +1024,11 @@ const ESCENAS = [
     id: "jardin", label: "Jardín", img: "images/jardin.jpg",
     pitch: 0, yaw: 0,
     hotspots: [
-      { targetScene: "living", pitch: -1.5, yaw: 105.2, text: "Living" }
+      { targetScene: "living", pitch: 0.3, yaw: 9.1, text: "Living" }
     ],
     hotspotsLightbox: [
-      { pitch: -0.9, yaw: 80.7, text: "Parrilla · Ver detalle", galeriaId: "parrilla" },
-      { pitch: -1.4, yaw: -31.4, text: "Piscina · Ver detalle", galeriaId: "piscina" }
+      { pitch: -2.9, yaw: -33.0, text: "Parrilla · Ver detalle", galeriaId: "parrilla" },
+      { pitch: -1.9, yaw: -161.7, text: "Piscina · Ver detalle", galeriaId: "piscina" }
     ]
   }
 ];
@@ -1050,9 +1039,9 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":     _pct(1600,  600, 329),
-  "cocina":     _pct(1260,  730, 249),
-  "jardin":     _pct(2290,  540, 249)
+  "living":     _pct(1600,  600, 359),
+  "cocina":     _pct(1260,  730, 359),
+  "jardin":     _pct(2298,  409, 359)
 };
 
 function actualizarMinimap(idEscena) {
@@ -1182,7 +1171,7 @@ function inicializarShare() {
    AUDIO AMBIENTE
 ═══════════════════════════════════════════════════════ */
 const AUDIO_KEY = 'casa_martinez_audio_v1';
-const AUDIO_VOL_INTERIOR = 0.44;   // -35% respecto al anterior
+const AUDIO_VOL_INTERIOR = 0.30;   // -50% respecto al anterior
 const AUDIO_VOL_EXTERIOR = 0.88;   // +35% respecto al anterior
 const AUDIO_FADE_MS = 800;
 
