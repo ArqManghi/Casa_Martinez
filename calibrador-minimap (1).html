@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calibrador Minimap — Casa Martínez</title>
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css" crossorigin="anonymous"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #c8a96e;
+      --gold-border: rgba(200,169,110,0.3);
+      --bg: #080808;
+      --text: #f0ece4;
+      --text-dim: rgba(240,236,228,0.5);
+      --border: rgba(200,169,110,0.25);
+      --panel-bg: rgba(10,10,10,0.97);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+
+    /* ── TOOLBAR ── */
+    #toolbar {
+      background: rgba(8,8,8,0.98); border-bottom: 1px solid var(--border);
+      padding: 9px 18px; display:flex; align-items:center; gap:14px; flex-shrink:0; flex-wrap:wrap;
+    }
+    #toolbar h1 { font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:300; letter-spacing:3px; color:var(--gold); white-space:nowrap; }
+    .tb-sep { width:1px; height:26px; background:var(--border); flex-shrink:0; }
+    select.tb-sel {
+      background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:3px;
+      color:var(--text); font-family:'Outfit',sans-serif; font-size:12px; letter-spacing:1px;
+      padding:5px 10px; cursor:pointer; outline:none;
+    }
+    select.tb-sel option { background:#111; }
+    .tb-btn {
+      background:rgba(200,169,110,0.08); border:1px solid var(--border); border-radius:3px;
+      color:var(--gold); font-family:'Outfit',sans-serif; font-size:11px; letter-spacing:1.5px;
+      text-transform:uppercase; padding:5px 12px; cursor:pointer; transition:all 0.2s; white-space:nowrap;
+    }
+    .tb-btn:hover { background:rgba(200,169,110,0.16); border-color:var(--gold); }
+    #tb-hint { font-size:10px; letter-spacing:1px; color:var(--text-dim); margin-left:auto; }
+    #tb-hint strong { color:var(--gold); }
+
+    /* ── BODY LAYOUT ── */
+    #body { display:flex; flex:1; overflow:hidden; }
+
+    /* ── COLUMNA IZQUIERDA: plano ── */
+    #col-plano {
+      flex:1; display:flex; flex-direction:column;
+      border-right:1px solid var(--border); overflow:hidden;
+    }
+    #col-plano-header {
+      padding:8px 14px; font-size:8px; letter-spacing:3px; text-transform:uppercase;
+      color:var(--gold); border-bottom:1px solid var(--border); flex-shrink:0;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    #plano-wrap {
+      flex:1; position:relative; overflow:hidden;
+      background:#0d0d0d; display:flex; align-items:center; justify-content:center; cursor:crosshair;
+    }
+    #plano-inner { position:relative; display:inline-block; }
+    #plano-img { display:block; max-width:100%; max-height:100%; opacity:0.9; pointer-events:none; }
+    #cono-svg { position:absolute; inset:0; pointer-events:none; overflow:visible; }
+    #cursor-x {
+      position:absolute; pointer-events:none; display:none;
+    }
+    #cursor-x::before,#cursor-x::after { content:''; position:absolute; background:rgba(200,169,110,0.55); }
+    #cursor-x::before { width:1px; height:14px; top:-7px; left:0; }
+    #cursor-x::after  { width:14px; height:1px; left:-7px; top:0; }
+
+    .plano-dot {
+      position:absolute; transform:translate(-50%,-50%);
+      pointer-events:none;
+    }
+    .plano-dot .dot { width:11px; height:11px; border-radius:50%; background:var(--gold); border:2px solid #080808; box-shadow:0 0 5px rgba(200,169,110,0.5); }
+    .plano-dot.dim .dot { background:rgba(200,169,110,0.3); box-shadow:none; }
+    .plano-dot .dlabel { position:absolute; top:13px; left:50%; transform:translateX(-50%); font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); white-space:nowrap; text-shadow:0 0 5px #080808,0 0 3px #080808; }
+    .plano-dot.dim .dlabel { color:rgba(200,169,110,0.35); }
+
+    /* ── COLUMNA DERECHA: panorama ── */
+    #col-pano {
+      flex:1; display:flex; flex-direction:column; overflow:hidden;
+    }
+    #col-pano-header {
+      padding:8px 14px; font-size:8px; letter-spacing:3px; text-transform:uppercase;
+      color:var(--gold); border-bottom:1px solid var(--border); flex-shrink:0;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    #pano-yaw-live { font-size:11px; letter-spacing:1px; color:var(--text-dim); }
+    #pano-yaw-live span { color:var(--gold); }
+    #panorama { flex:1; width:100%; }
+    .pnlm-controls-container { display:none!important; }
+    .pnlm-about-msg { display:none!important; }
+
+    /* Norte indicator sobre el panorama */
+    #norte-indicator {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      pointer-events:none; z-index:10;
+    }
+    #norte-indicator line { stroke:rgba(200,169,110,0.7); stroke-width:1.5; }
+
+    /* ── PANEL INFERIOR ── */
+    #bottom-panel {
+      flex-shrink:0; background:var(--panel-bg);
+      border-top:1px solid var(--border);
+      display:flex; gap:0; overflow:hidden;
+    }
+
+    /* Cards de escena en horizontal */
+    #scene-cards {
+      display:flex; gap:0; overflow-x:auto; flex:1;
+    }
+    #scene-cards::-webkit-scrollbar { height:3px; }
+    #scene-cards::-webkit-scrollbar-thumb { background:var(--border); }
+
+    .sc {
+      flex-shrink:0; width:180px;
+      border-right:1px solid rgba(255,255,255,0.05);
+      padding:10px 12px; cursor:pointer;
+      transition:background 0.2s;
+    }
+    .sc:hover { background:rgba(200,169,110,0.04); }
+    .sc.active { background:rgba(200,169,110,0.07); border-top:2px solid var(--gold); padding-top:8px; }
+    .sc-name { font-size:11px; font-weight:300; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; }
+    .sc-badge { font-size:7px; letter-spacing:1.5px; text-transform:uppercase; padding:2px 6px; border-radius:2px; }
+    .sc-badge.ok  { color:#8bc88b; border:1px solid rgba(139,200,139,0.3); }
+    .sc-badge.sin { color:#e07070; border:1px solid rgba(224,112,112,0.2); }
+    .sc-row2 { display:flex; gap:6px; align-items:center; }
+    .sc-coord { flex:1; }
+    .sc-coord label { font-size:7px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); display:block; margin-bottom:2px; }
+    .sc-coord input {
+      width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07);
+      border-radius:2px; color:var(--text); font-family:'Outfit',sans-serif; font-size:11px;
+      padding:3px 6px; outline:none; transition:border-color 0.2s;
+    }
+    .sc-coord input:focus { border-color:var(--gold); }
+    .sc-north { flex:1; }
+    .sc-north label { font-size:7px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); display:block; margin-bottom:2px; }
+    .sc-north-row { display:flex; align-items:center; gap:4px; }
+    .sc-north-row input[type=range] { flex:1; accent-color:var(--gold); }
+    .sc-north-num { font-size:11px; color:var(--gold); white-space:nowrap; min-width:32px; }
+    .sc-capture {
+      margin-top:7px; width:100%;
+      background:rgba(200,169,110,0.08); border:1px solid var(--border); border-radius:2px;
+      color:var(--gold); font-family:'Outfit',sans-serif; font-size:9px; letter-spacing:1.5px;
+      text-transform:uppercase; padding:4px 0; cursor:pointer; transition:all 0.2s;
+    }
+    .sc-capture:hover { background:rgba(200,169,110,0.15); border-color:var(--gold); }
+
+    /* Acciones globales */
+    #panel-actions {
+      flex-shrink:0; border-left:1px solid var(--border);
+      padding:10px 14px; display:flex; flex-direction:column; gap:8px; justify-content:center; width:150px;
+    }
+    .pa-btn {
+      background:rgba(200,169,110,0.08); border:1px solid var(--border); border-radius:2px;
+      color:var(--gold); font-family:'Outfit',sans-serif; font-size:9px; letter-spacing:1.5px;
+      text-transform:uppercase; padding:7px; cursor:pointer; transition:all 0.2s; text-align:center;
+    }
+    .pa-btn:hover { background:rgba(200,169,110,0.15); border-color:var(--gold); }
+    .pa-btn.copied { color:#8bc88b; border-color:rgba(139,200,139,0.4); }
+
+    /* Output */
+    #output-wrap {
+      flex-shrink:0; border-left:1px solid var(--border);
+      padding:10px; width:260px; display:flex; flex-direction:column; gap:6px;
+    }
+    #output-label { font-size:7px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+    #output-box {
+      flex:1; background:rgba(0,0,0,0.5); border:1px solid var(--border); border-radius:2px;
+      padding:8px; font-family:'Courier New',monospace; font-size:9px; line-height:1.6;
+      color:#a8d8a8; white-space:pre; overflow:auto; min-height:80px;
+    }
+
+    /* Toast */
+    #toast {
+      position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(16px);
+      background:rgba(200,169,110,0.15); border:1px solid rgba(200,169,110,0.4); border-radius:3px;
+      padding:7px 18px; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+      color:var(--gold); opacity:0; transition:opacity 0.3s,transform 0.3s;
+      pointer-events:none; z-index:9999; white-space:nowrap;
+    }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <h1>CALIBRADOR MINIMAP · CASA MARTÍNEZ</h1>
+  <div class="tb-sep"></div>
+  <select class="tb-sel" id="scene-sel" onchange="cargarEscena(this.value)">
+    <option value="living">Living / Comedor</option>
+    <option value="cocina">Cocina</option>
+    <option value="dormitorio">Dormitorio</option>
+    <option value="bano">Baño Suite</option>
+    <option value="jardin">Jardín</option>
+  </select>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" onclick="capturarNorteDesdeVisor()">⊕ Norte = yaw actual</button>
+  <button class="tb-btn" onclick="generarCodigo()">{ } Generar código</button>
+  <div id="tb-hint">Click en el plano para posicionar · <strong>Slider</strong> para ajustar norte</div>
+</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- PLANO -->
+  <div id="col-plano">
+    <div id="col-plano-header">
+      <span>Planta del proyecto</span>
+      <span id="plano-coords" style="font-size:9px;letter-spacing:1px;color:var(--text-dim);">—</span>
+    </div>
+    <div id="plano-wrap">
+      <div id="plano-inner">
+        <img id="plano-img" src="images/plano-martinez-blanco.png" alt="Planta"/>
+        <svg id="cono-svg"></svg>
+        <div id="cursor-x"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANORAMA -->
+  <div id="col-pano" style="position:relative;">
+    <div id="col-pano-header">
+      <span id="pano-scene-label">Seleccioná una escena</span>
+      <div id="pano-yaw-live">Yaw: <span id="yaw-val">—</span> &nbsp; Pitch: <span id="pitch-val">—</span></div>
+    </div>
+    <div id="panorama"></div>
+  </div>
+
+</div>
+
+<!-- PANEL INFERIOR -->
+<div id="bottom-panel">
+  <div id="scene-cards"></div>
+  <div id="panel-actions">
+    <button class="pa-btn" onclick="generarCodigo()">{ } Generar</button>
+    <button class="pa-btn" id="copy-btn" onclick="copiarCodigo()">Copiar código</button>
+  </div>
+  <div id="output-wrap">
+    <div id="output-label">Código · MINIMAP_POS</div>
+    <div id="output-box">// Ajustá y presioná Generar</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════
+   DATOS
+═══════════════════════════════════ */
+const PLANO_W = 3030, PLANO_H = 1052;
+
+const ESCENAS = [
+  { id:"living",     label:"Living / Comedor", img:"images/living.jpg",     pitch:-5, yaw:0 },
+  { id:"cocina",     label:"Cocina",           img:"images/cocina.jpg",     pitch:-5, yaw:0 },
+  { id:"dormitorio", label:"Dormitorio",       img:"images/dormitorio.jpg", pitch:-5, yaw:0 },
+  { id:"bano",       label:"Baño Suite",       img:"images/bano.jpg",       pitch:-5, yaw:0 },
+  { id:"jardin",     label:"Jardín",           img:"images/jardin.jpg",     pitch:0,  yaw:0 }
+];
+
+// Posiciones actuales en px sobre PLANO_W x PLANO_H — null = sin calibrar
+let datos = {
+  "living":     { px:1600, py:600,  norte:329 },
+  "cocina":     { px:1260, py:730,  norte:249 },
+  "dormitorio": null,
+  "bano":       null,
+  "jardin":     { px:2290, py:540,  norte:249 }
+};
+
+/* ═══════════════════════════════════
+   ESTADO
+═══════════════════════════════════ */
+let escenaActual = "living";
+let visor = null;
+let imgW = 0, imgH = 0;
+let liveRAF = null;
+
+/* ═══════════════════════════════════
+   PLANO
+═══════════════════════════════════ */
+const planoImg   = document.getElementById('plano-img');
+const planoInner = document.getElementById('plano-inner');
+const planoWrap  = document.getElementById('plano-wrap');
+const conoSvg    = document.getElementById('cono-svg');
+const cursorX    = document.getElementById('cursor-x');
+
+function dimPlano() {
+  imgW = planoImg.offsetWidth;
+  imgH = planoImg.offsetHeight;
+}
+
+planoImg.onload = () => { dimPlano(); renderPlano(); renderCards(); };
+if (planoImg.complete && planoImg.naturalWidth) { dimPlano(); renderPlano(); renderCards(); }
+window.addEventListener('resize', () => { dimPlano(); renderPlano(); });
+
+// Click → posicionar
+planoWrap.addEventListener('click', e => {
+  const rect = planoImg.getBoundingClientRect();
+  const rx = (e.clientX - rect.left) / imgW;
+  const ry = (e.clientY - rect.top)  / imgH;
+  const px = Math.round(rx * PLANO_W);
+  const py = Math.round(ry * PLANO_H);
+  if (!datos[escenaActual]) datos[escenaActual] = { px, py, norte: 0 };
+  else { datos[escenaActual].px = px; datos[escenaActual].py = py; }
+  sincInputs(escenaActual);
+  renderPlano();
+  renderCards();
+  mostrarToast(`${escenaActual} → ${px}, ${py}`);
+});
+
+// Cursor crosshair
+planoWrap.addEventListener('mousemove', e => {
+  const rect = planoImg.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  cursorX.style.display = 'block';
+  cursorX.style.left = x + 'px';
+  cursorX.style.top  = y + 'px';
+  const px = Math.round((x / imgW) * PLANO_W);
+  const py = Math.round((y / imgH) * PLANO_H);
+  document.getElementById('plano-coords').textContent = `px:${px}  py:${py}`;
+});
+planoWrap.addEventListener('mouseleave', () => {
+  cursorX.style.display = 'none';
+  document.getElementById('plano-coords').textContent = '—';
+});
+
+function renderPlano() {
+  dimPlano();
+  // Limpiar puntos
+  document.querySelectorAll('.plano-dot').forEach(e => e.remove());
+  conoSvg.innerHTML = '';
+  // Ajustar SVG
+  conoSvg.setAttribute('width', imgW);
+  conoSvg.setAttribute('height', imgH);
+
+  Object.entries(datos).forEach(([id, pos]) => {
+    if (!pos) return;
+    const esc = ESCENAS.find(e => e.id === id);
+    const sx = (pos.px / PLANO_W) * imgW;
+    const sy = (pos.py / PLANO_H) * imgH;
+    const activo = id === escenaActual;
+
+    // Cono
+    dibujarCono(sx, sy, pos.norte, activo);
+
+    // Punto
+    const d = document.createElement('div');
+    d.className = 'plano-dot' + (activo ? '' : ' dim');
+    d.style.left = sx + 'px'; d.style.top = sy + 'px';
+    d.innerHTML = `<div class="dot"></div><div class="dlabel">${esc ? esc.label : id}</div>`;
+    planoInner.appendChild(d);
+  });
+}
+
+function dibujarCono(cx, cy, norte, activo) {
+  const R = Math.min(imgW, imgH) * 0.10;
+  const opacity = activo ? 1 : 0.3;
+  // norte es el ángulo de rotación del cono en el index.html
+  // El cono apunta "hacia arriba" (norte geométrico) y se rota
+  const angRad = (norte - 90) * Math.PI / 180;
+  const spread = 37.5 * Math.PI / 180;
+  const a1 = angRad - spread, a2 = angRad + spread;
+  const x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1);
+  const x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2);
+
+  const gId = 'cg-' + Math.random().toString(36).slice(2,6);
+  const ns = 'http://www.w3.org/2000/svg';
+  const defs = document.createElementNS(ns,'defs');
+  defs.innerHTML = `<radialGradient id="${gId}" cx="50%" cy="100%" r="80%">
+    <stop offset="0%" stop-color="#c8a96e" stop-opacity="${0.55*opacity}"/>
+    <stop offset="100%" stop-color="#c8a96e" stop-opacity="0"/>
+  </radialGradient>`;
+  conoSvg.appendChild(defs);
+
+  const path = document.createElementNS(ns,'path');
+  path.setAttribute('d',`M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 0 1 ${x2} ${y2} Z`);
+  path.setAttribute('fill',`url(#${gId})`);
+  path.setAttribute('stroke',`rgba(200,169,110,${0.7*opacity})`);
+  path.setAttribute('stroke-width','0.8');
+  conoSvg.appendChild(path);
+
+  const c = document.createElementNS(ns,'circle');
+  c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r', activo ? 5 : 4);
+  c.setAttribute('fill', activo ? '#c8a96e' : 'rgba(200,169,110,0.4)');
+  c.setAttribute('stroke','#080808'); c.setAttribute('stroke-width','1.5');
+  conoSvg.appendChild(c);
+}
+
+/* ═══════════════════════════════════
+   PANORAMA
+═══════════════════════════════════ */
+function cargarEscena(id) {
+  escenaActual = id;
+  document.getElementById('scene-sel').value = id;
+  const esc = ESCENAS.find(e => e.id === id);
+  document.getElementById('pano-scene-label').textContent = esc ? esc.label : id;
+
+  if (visor) { try { visor.destroy(); } catch(e){} visor = null; }
+  if (liveRAF) { cancelAnimationFrame(liveRAF); liveRAF = null; }
+
+  visor = pannellum.viewer('panorama', {
+    type:'equirectangular', panorama: esc.img,
+    autoLoad:true, autoRotate:0,
+    compass:false, showFullscreenCtrl:false, showZoomCtrl:false,
+    pitch: esc.pitch, yaw: esc.yaw, hfov:100,
+    strings:{ loadingLabel:"", bylineLabel:"" }
+  });
+
+  // Live yaw/pitch
+  const loopLive = () => {
+    if (visor) {
+      try {
+        document.getElementById('yaw-val').textContent   = visor.getYaw().toFixed(1);
+        document.getElementById('pitch-val').textContent = visor.getPitch().toFixed(1);
+      } catch(e){}
+    }
+    liveRAF = requestAnimationFrame(loopLive);
+  };
+  loopLive();
+
+  renderPlano();
+  renderCards();
+  marcarCardActiva(id);
+}
+
+/* Captura el yaw actual del visor como norte */
+function capturarNorteDesdeVisor() {
+  if (!visor) return;
+  const yaw = Math.round(visor.getYaw());
+  if (!datos[escenaActual]) datos[escenaActual] = { px:0, py:0, norte: yaw };
+  else datos[escenaActual].norte = yaw;
+  sincInputs(escenaActual);
+  renderPlano();
+  mostrarToast(`Norte de ${escenaActual} = ${yaw}°`);
+}
+
+/* ═══════════════════════════════════
+   CARDS INFERIORES
+═══════════════════════════════════ */
+function renderCards() {
+  const grid = document.getElementById('scene-cards');
+  grid.innerHTML = '';
+  ESCENAS.forEach(esc => {
+    const pos = datos[esc.id];
+    const activo = esc.id === escenaActual;
+    const div = document.createElement('div');
+    div.className = 'sc' + (activo ? ' active' : '');
+    div.id = 'sc-' + esc.id;
+    div.onclick = () => cargarEscena(esc.id);
+    div.innerHTML = `
+      <div class="sc-name">
+        ${esc.label}
+        <span class="sc-badge ${pos?'ok':'sin'}">${pos?'OK':'—'}</span>
+      </div>
+      <div class="sc-row2">
+        <div class="sc-coord">
+          <label>Px</label>
+          <input type="number" id="ipx-${esc.id}" value="${pos?pos.px:''}" placeholder="—"
+            onclick="event.stopPropagation()"
+            onchange="editCampo('${esc.id}','px',this.value)">
+        </div>
+        <div class="sc-coord">
+          <label>Py</label>
+          <input type="number" id="ipy-${esc.id}" value="${pos?pos.py:''}" placeholder="—"
+            onclick="event.stopPropagation()"
+            onchange="editCampo('${esc.id}','py',this.value)">
+        </div>
+        <div class="sc-north">
+          <label>Norte</label>
+          <div class="sc-north-row">
+            <input type="range" min="0" max="359" step="1"
+              id="inorte-${esc.id}" value="${pos?pos.norte:0}"
+              onclick="event.stopPropagation()"
+              oninput="editNorte('${esc.id}',this.value)">
+            <span class="sc-north-num" id="nnum-${esc.id}">${pos?pos.norte:0}°</span>
+          </div>
+        </div>
+      </div>
+      <button class="sc-capture" onclick="event.stopPropagation(); capturarNorteCard('${esc.id}')">⊕ Norte = yaw visor</button>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function marcarCardActiva(id) {
+  document.querySelectorAll('.sc').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('sc-' + id);
+  if (card) { card.classList.add('active'); card.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
+}
+
+function sincInputs(id) {
+  const pos = datos[id];
+  if (!pos) return;
+  const px = document.getElementById('ipx-' + id);
+  const py = document.getElementById('ipy-' + id);
+  const nr = document.getElementById('inorte-' + id);
+  const nn = document.getElementById('nnum-' + id);
+  if (px) px.value = pos.px;
+  if (py) py.value = pos.py;
+  if (nr) nr.value = pos.norte;
+  if (nn) nn.textContent = pos.norte + '°';
+  // Badge
+  const badge = document.querySelector('#sc-' + id + ' .sc-badge');
+  if (badge) { badge.className = 'sc-badge ok'; badge.textContent = 'OK'; }
+}
+
+function editCampo(id, campo, val) {
+  const v = parseInt(val); if (isNaN(v)) return;
+  if (!datos[id]) datos[id] = { px:0, py:0, norte:0 };
+  datos[id][campo] = v;
+  renderPlano();
+}
+
+function editNorte(id, val) {
+  const v = parseInt(val);
+  if (!datos[id]) datos[id] = { px:0, py:0, norte:v };
+  else datos[id].norte = v;
+  document.getElementById('nnum-' + id).textContent = v + '°';
+  renderPlano();
+}
+
+function capturarNorteCard(id) {
+  if (!visor || escenaActual !== id) {
+    mostrarToast('Primero cargá esta escena en el visor');
+    return;
+  }
+  const yaw = Math.round(visor.getYaw());
+  if (!datos[id]) datos[id] = { px:0, py:0, norte:yaw };
+  else datos[id].norte = yaw;
+  sincInputs(id);
+  renderPlano();
+  mostrarToast(`Norte ${id} = ${yaw}°`);
+}
+
+/* ═══════════════════════════════════
+   CÓDIGO
+═══════════════════════════════════ */
+function generarCodigo() {
+  let out = `const PLANO_W = ${PLANO_W}, PLANO_H = ${PLANO_H};\n`;
+  out += `function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }\n\n`;
+  out += `const MINIMAP_POS = {\n`;
+  const lineas = [];
+  ESCENAS.forEach(e => {
+    const p = datos[e.id];
+    if (p) lineas.push(`  "${e.id}":${' '.repeat(Math.max(1,14-e.id.length))}_pct(${p.px}, ${p.py}, ${p.norte})`);
+  });
+  out += lineas.join(',\n') + '\n};';
+  document.getElementById('output-box').textContent = out;
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('copy-btn').textContent = 'Copiar código';
+}
+
+function copiarCodigo() {
+  const txt = document.getElementById('output-box').textContent;
+  if (txt.startsWith('//')) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copiado'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar código'; btn.classList.remove('copied'); }, 2000);
+    mostrarToast('Código copiado');
+  });
+}
+
+/* ═══════════════════════════════════
+   UTILS
+═══════════════════════════════════ */
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// INIT
+cargarEscena('living');
+</script>
+</body>
+</html>
