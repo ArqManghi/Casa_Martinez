@@ -19,7 +19,6 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
 
-    /* ── TOOLBAR ── */
     #toolbar {
       position: relative;
       z-index: 300;
@@ -69,8 +68,6 @@
       white-space: nowrap;
     }
     .tb-btn:hover { background: rgba(200,169,110,0.16); border-color: var(--gold); }
-    .tb-btn.danger { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.05); }
-    .tb-btn.danger:hover { background: rgba(224,112,112,0.12); border-color: #e07070; }
     #coords-live {
       font-size: 12px;
       letter-spacing: 1px;
@@ -80,16 +77,12 @@
     }
     #coords-live span { color: var(--gold); font-weight: 400; }
 
-    /* ── MAIN ── */
     #main { display:flex; flex:1; overflow:hidden; }
-
-    /* ── VIEWER ── */
     #viewer-wrap { flex:1; position:relative; }
     #panorama { width:100%; height:100%; }
     .pnlm-controls-container { display:none !important; }
     .pnlm-about-msg { display:none !important; }
 
-    /* Crosshair central */
     #crosshair {
       position: absolute;
       top: 50%; left: 50%;
@@ -98,60 +91,30 @@
       z-index: 10;
     }
     #crosshair::before, #crosshair::after {
-      content:'';
-      position:absolute;
-      background: rgba(200,169,110,0.8);
-    }
-    #crosshair::before { width:1px; height:24px; top:-12px; left:0; }
-    #crosshair::after  { width:24px; height:1px; left:-12px; top:0; }
-
-    /* Instrucción flotante */
-    #instruccion {
+      content: '';
       position: absolute;
-      top: 16px; left: 50%; transform: translateX(-50%);
-      background: rgba(8,8,8,0.85);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      padding: 8px 20px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      pointer-events: none;
-      z-index: 10;
-      white-space: nowrap;
+      background: rgba(200,169,110,0.6);
     }
-    #instruccion strong { color: var(--gold); }
+    #crosshair::before { width: 20px; height: 1px; top: 0; left: -10px; }
+    #crosshair::after { width: 1px; height: 20px; left: 0; top: -10px; }
 
-    /* ── PANEL DERECHO ── */
-    #panel {
-      width: 340px;
-      flex-shrink: 0;
+    #sidebar {
+      width: 320px;
       background: var(--panel);
       border-left: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-    #panel-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-      font-size: 9px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
+
     #hotspot-list {
       flex: 1;
       overflow-y: auto;
-      padding: 10px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    #hotspot-list::-webkit-scrollbar { width: 4px; }
-    #hotspot-list::-webkit-scrollbar-track { background: transparent; }
-    #hotspot-list::-webkit-scrollbar-thumb { background: var(--border); border-radius:2px; }
 
     .hs-card {
       background: rgba(255,255,255,0.03);
@@ -160,7 +123,6 @@
       padding: 10px 12px;
       cursor: pointer;
       transition: all 0.2s;
-      position: relative;
     }
     .hs-card:hover { border-color: var(--border); background: rgba(200,169,110,0.05); }
     .hs-card.active { border-color: var(--gold); background: rgba(200,169,110,0.08); }
@@ -172,7 +134,6 @@
       margin-bottom: 4px;
     }
     .hs-card-type.nav { color: #7eb8c8; }
-    .hs-card-type.lightbox { color: #c8a96e; }
     .hs-card-label {
       font-size: 13px;
       font-weight: 300;
@@ -231,10 +192,7 @@
     .hs-action:hover { color: var(--text); border-color: var(--border); }
     .hs-action.primary { color: var(--gold); border-color: var(--border); }
     .hs-action.primary:hover { background: rgba(200,169,110,0.1); border-color: var(--gold); }
-    .hs-action.go { color: #7eb8c8; border-color: rgba(126,184,200,0.2); }
-    .hs-action.go:hover { background: rgba(126,184,200,0.08); border-color: #7eb8c8; }
 
-    /* ── OUTPUT ── */
     #output-section {
       border-top: 1px solid var(--border);
       padding: 12px;
@@ -248,202 +206,85 @@
       margin-bottom: 8px;
     }
     #output-box {
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
       border: 1px solid var(--border);
       border-radius: 2px;
-      padding: 10px;
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
-      line-height: 1.6;
+      padding: 8px;
+      font-family:'Courier New',monospace;
+      font-size: 9px;
+      line-height: 1.5;
       color: #a8d8a8;
       white-space: pre;
-      overflow-x: auto;
-      max-height: 160px;
-      overflow-y: auto;
+      overflow: auto;
+      max-height: 120px;
+      margin-bottom: 8px;
     }
-    #output-box::-webkit-scrollbar { width:3px; height:3px; }
-    #output-box::-webkit-scrollbar-thumb { background:var(--border); }
     #copy-btn {
-      margin-top: 8px;
       width: 100%;
-      background: rgba(200,169,110,0.1);
+      background: rgba(200,169,110,0.08);
       border: 1px solid var(--border);
       border-radius: 2px;
       color: var(--gold);
       font-family:'Outfit',sans-serif;
-      font-size: 10px;
-      letter-spacing: 2px;
+      font-size: 9px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
-      padding: 7px;
+      padding: 6px;
       cursor: pointer;
       transition: all 0.2s;
     }
-    #copy-btn:hover { background: rgba(200,169,110,0.18); border-color: var(--gold); }
-    #copy-btn.copied { color: #8bc88b; border-color: rgba(139,200,139,0.4); }
-
-    /* Toast */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(200,169,110,0.15);
-      border: 1px solid rgba(200,169,110,0.4);
-      border-radius: 3px;
-      padding: 8px 20px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      pointer-events: none;
-      z-index: 9999;
-      white-space: nowrap;
-    }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #copy-btn:hover { background: rgba(200,169,110,0.15); border-color: var(--gold); }
   </style>
 </head>
 <body>
 
-<!-- TOOLBAR -->
 <div id="toolbar">
-  <h1>CALIBRADOR · CASA MARTÍNEZ</h1>
+  <h1>Calibrador Hotspots</h1>
   <div class="tb-sep"></div>
-  <select id="scene-select" onchange="cambiarEscena(this.value)">
-    <option value="living">Living / Comedor</option>
-    <option value="cocina">Cocina</option>
-    <option value="dormitorio">Dormitorio</option>
-    <option value="bano">Baño Suite</option>
-    <option value="jardin">Jardín</option>
-  </select>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="capturarCentro()">⊕ Capturar centro</button>
-  <button class="tb-btn" onclick="generarCodigo()">{ } Generar código</button>
-  <div id="coords-live">Pitch: <span id="live-pitch">—</span> &nbsp; Yaw: <span id="live-yaw">—</span></div>
+  <select id="scene-select" onchange="cambiarEscena(this.value)"></select>
+  <button class="tb-btn" onclick="generarCodigo()">⊕ Generar código</button>
+  <div id="coords-live">Pitch: <span id="live-pitch">0.0</span>° | Yaw: <span id="live-yaw">0.0</span>°</div>
 </div>
 
-<!-- MAIN -->
 <div id="main">
-
-  <!-- VIEWER -->
   <div id="viewer-wrap">
     <div id="panorama"></div>
     <div id="crosshair"></div>
-    <div id="instruccion">Mirá hacia el punto → <strong>Capturar centro</strong> o hacé click en un hotspot</div>
   </div>
-
-  <!-- PANEL -->
-  <div id="panel">
-    <div id="panel-header">Hotspots de la escena</div>
+  <div id="sidebar">
     <div id="hotspot-list"></div>
     <div id="output-section">
       <div id="output-label">Código generado</div>
-      <div id="output-box">// Seleccioná una escena y presioná "Generar código"</div>
-      <button id="copy-btn" onclick="copiarCodigo()">Copiar código</button>
+      <div id="output-box">// Click en "Generar código"</div>
+      <button id="copy-btn" onclick="copiarCodigo()">Copiar</button>
     </div>
   </div>
-
 </div>
 
-<div id="toast">Copiado al portapapeles</div>
-
 <script>
-// ═══════════════════════════════════════════════════
-// DATOS — copiados exactamente del index.html actual
-// ═══════════════════════════════════════════════════
 const ESCENAS = [
-  {
-    id: "living", label: "Living / Comedor", img: "images/living.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "cocina",     pitch: -15.5, yaw: -114.5, text: "Cocina" },
-      { targetScene: "dormitorio", pitch: -12,   yaw: 45,     text: "Dormitorio" },
-      { targetScene: "hall",       pitch: -10,   yaw: 180,    text: "Hall" },
-      { targetScene: "jardin",     pitch: -12.7, yaw: 82.2,   text: "Jardín" }
-    ],
-    hotspotsLightbox: [
-      { pitch: -11.3, yaw: -15.3, text: "Living · Ver vistas", galeriaId: "living" }
-    ]
-  },
-  {
-    id: "cocina", label: "Cocina", img: "images/cocina.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "living",   pitch: -3.9, yaw: 168.8, text: "Living" },
-      { targetScene: "lavadero", pitch: -8,   yaw: -90,   text: "Lavadero" },
-      { targetScene: "hall",     pitch: -6,   yaw: 120,   text: "Hall" }
-    ],
-    hotspotsLightbox: [
-      { pitch: -11.3, yaw: -48.4, text: "Cocina · Ver detalle", galeriaId: "cocina" }
-    ]
-  },
-  {
-    id: "hall", label: "Hall", img: "images/hall.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "living",     pitch: -10, yaw: 0,    text: "Living" },
-      { targetScene: "cocina",     pitch: -8,  yaw: -120, text: "Cocina" },
-      { targetScene: "dormitorio", pitch: -12, yaw: 45,   text: "Dormitorio" },
-      { targetScene: "lavadero",   pitch: -10, yaw: -90,  text: "Lavadero" }
-    ]
-  },
-  {
-    id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "living", pitch: -10, yaw: 120, text: "Living" },
-      { targetScene: "bano",   pitch: -10, yaw: -30, text: "Baño Suite" },
-      { targetScene: "hall",   pitch: -8,  yaw: 180, text: "Hall" }
-    ]
-  },
-  {
-    id: "bano", label: "Baño Suite", img: "images/bano.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "dormitorio", pitch: -10, yaw: 180, text: "Dormitorio" }
-    ]
-  },
-  {
-    id: "lavadero", label: "Lavadero", img: "images/lavadero.jpg",
-    pitch: -5, yaw: 0,
-    hotspots: [
-      { targetScene: "cocina", pitch: -8, yaw: 90,  text: "Cocina" },
-      { targetScene: "hall",   pitch: -10, yaw: 0,  text: "Hall" }
-    ]
-  },
-  {
-    id: "jardin", label: "Jardín", img: "images/jardin.jpg",
-    pitch: 0, yaw: 0,
-    hotspots: [
-      { targetScene: "living", pitch: 0.3, yaw: 9.1, text: "Living" }
-    ],
-    hotspotsLightbox: [
-      { pitch: -2.9,  yaw: -33.0,  text: "Parrilla · Ver detalle", galeriaId: "parrilla" },
-      { pitch: -1.9,  yaw: -161.7, text: "Piscina · Ver detalle",  galeriaId: "piscina" }
-    ]
-  }
+  { id:"living",    label:"Living / Comedor", img:"images/living.jpg",    pitch:-5, yaw:0 },
+  { id:"cocina",    label:"Cocina",           img:"images/cocina.jpg",    pitch:-5, yaw:0 },
+  { id:"hall",      label:"Hall",             img:"images/hall.jpg",      pitch:-5, yaw:0 },
+  { id:"dormitorio", label:"Dormitorio",      img:"images/dormitorio.jpg", pitch:-5, yaw:0 },
+  { id:"bano",      label:"Baño Suite",       img:"images/bano.jpg",      pitch:-5, yaw:0 },
+  { id:"lavadero",  label:"Lavadero",         img:"images/lavadero.jpg",  pitch:-5, yaw:0 },
+  { id:"jardin",    label:"Jardín",           img:"images/jardin.jpg",    pitch:0,  yaw:0 }
 ];
 
-// ═══════════════════════════════════════════════════
-// ESTADO
-// ═══════════════════════════════════════════════════
 let visor = null;
 let escenaActual = null;
-let datosEscenas = {}; // copia editable
+let datosEscenas = {};
 
-// Inicializar copia editable profunda
 ESCENAS.forEach(e => {
   datosEscenas[e.id] = {
     ...e,
-    hotspots:        (e.hotspots        || []).map(h => ({...h})),
-    hotspotsLightbox:(e.hotspotsLightbox|| []).map(h => ({...h}))
+    hotspots: [
+      { targetScene: "living", pitch: 0, yaw: 0, text: "Nuevo hotspot" }
+    ]
   };
 });
 
-// ═══════════════════════════════════════════════════
-// VISOR
-// ═══════════════════════════════════════════════════
 function cambiarEscena(id) {
   escenaActual = id;
   const esc = datosEscenas[id];
@@ -462,197 +303,111 @@ function cambiarEscena(id) {
     strings: { loadingLabel:"", bylineLabel:"" }
   });
 
-  // Actualizar coords en vivo
   setInterval(() => {
     if (!visor) return;
     try {
       document.getElementById('live-pitch').textContent = visor.getPitch().toFixed(1);
-      document.getElementById('live-yaw').textContent   = visor.getYaw().toFixed(1);
+      document.getElementById('live-yaw').textContent = visor.getYaw().toFixed(1);
     } catch(e){}
   }, 100);
 
-  renderizarPanel(id);
+  renderHotspots();
 }
 
-// ═══════════════════════════════════════════════════
-// PANEL DE HOTSPOTS
-// ═══════════════════════════════════════════════════
-function renderizarPanel(id) {
-  const esc = datosEscenas[id];
-  const lista = document.getElementById('hotspot-list');
-  lista.innerHTML = '';
-
-  const todos = [
-    ...(esc.hotspots        || []).map(h => ({ ...h, _tipo: 'nav' })),
-    ...(esc.hotspotsLightbox|| []).map(h => ({ ...h, _tipo: 'lightbox' }))
-  ];
-
-  if (todos.length === 0) {
-    lista.innerHTML = '<div style="color:var(--text-dim);font-size:11px;padding:12px;letter-spacing:1px;">Esta escena no tiene hotspots.</div>';
-    return;
-  }
-
-  todos.forEach((hs, idx) => {
-    const esNav = hs._tipo === 'nav';
+function renderHotspots() {
+  const list = document.getElementById('hotspot-list');
+  const esc = datosEscenas[escenaActual];
+  list.innerHTML = '';
+  
+  if (!esc.hotspots) esc.hotspots = [];
+  
+  esc.hotspots.forEach((hs, idx) => {
     const card = document.createElement('div');
     card.className = 'hs-card';
-    card.id = 'card-' + idx;
-
-    const tipoLabel = esNav
-      ? `NAV → ${hs.targetScene}`
-      : `LIGHTBOX → ${hs.galeriaId}`;
-
     card.innerHTML = `
-      <div class="hs-card-type ${hs._tipo}">${tipoLabel}</div>
+      <div class="hs-card-type nav">${hs.targetScene || '—'}</div>
       <div class="hs-card-label">${hs.text}</div>
       <div class="hs-coords">
         <div class="hs-coord-field">
           <label>Pitch</label>
-          <input type="number" step="0.1" id="pitch-${idx}" value="${hs.pitch}" onchange="actualizarCoord(${idx}, 'pitch', this.value)">
+          <input type="number" step="0.1" value="${hs.pitch.toFixed(1)}" 
+            onchange="editHS(${idx}, 'pitch', this.value)">
         </div>
         <div class="hs-coord-field">
           <label>Yaw</label>
-          <input type="number" step="0.1" id="yaw-${idx}" value="${hs.yaw}" onchange="actualizarCoord(${idx}, 'yaw', this.value)">
+          <input type="number" step="0.1" value="${hs.yaw.toFixed(1)}" 
+            onchange="editHS(${idx}, 'yaw', this.value)">
         </div>
       </div>
       <div class="hs-card-actions">
-        <button class="hs-action primary" onclick="capturarParaHotspot(${idx})">⊕ Capturar vista</button>
-        <button class="hs-action go" onclick="irAlHotspot(${idx})">◎ Ver posición</button>
+        <button class="hs-action primary" onclick="capturarDesdeVisor(${idx})">⊕ Capturar</button>
+        <button class="hs-action" onclick="borrarHS(${idx})">✕ Borrar</button>
       </div>
     `;
-    lista.appendChild(card);
+    list.appendChild(card);
   });
+
+  const addBtn = document.createElement('div');
+  addBtn.style.cssText = 'padding: 10px; text-align: center; border-top: 1px solid var(--border); margin-top: auto;';
+  addBtn.innerHTML = '<button class="tb-btn" onclick="agregarHS()" style="width:100%;">+ Nuevo hotspot</button>';
+  list.appendChild(addBtn);
 }
 
-function getHotspotPorIdx(escId, idx) {
-  const esc = datosEscenas[escId];
-  const todos = [
-    ...(esc.hotspots        || []).map(h => ({ ...h, _tipo: 'nav' })),
-    ...(esc.hotspotsLightbox|| []).map(h => ({ ...h, _tipo: 'lightbox' }))
-  ];
-  return todos[idx];
-}
-
-function actualizarCoord(idx, campo, valor) {
+function editHS(idx, campo, val) {
   const esc = datosEscenas[escenaActual];
-  const navLen = (esc.hotspots || []).length;
-  const v = parseFloat(valor);
-  if (isNaN(v)) return;
-  if (idx < navLen) {
-    esc.hotspots[idx][campo] = v;
-  } else {
-    esc.hotspotsLightbox[idx - navLen][campo] = v;
-  }
+  esc.hotspots[idx][campo] = parseFloat(val);
 }
 
-// Ir al yaw/pitch del hotspot seleccionado
-function irAlHotspot(idx) {
-  const hs = getHotspotPorIdx(escenaActual, idx);
-  if (!visor || !hs) return;
-  visor.lookAt(hs.pitch, hs.yaw, 100, 800);
-  resaltarCard(idx);
-}
-
-// Capturar la vista actual y asignar al hotspot
-function capturarParaHotspot(idx) {
+function capturarDesdeVisor(idx) {
   if (!visor) return;
-  const pitch = parseFloat(visor.getPitch().toFixed(1));
-  const yaw   = parseFloat(visor.getYaw().toFixed(1));
+  const pitch = visor.getPitch();
+  const yaw = visor.getYaw();
+  datosEscenas[escenaActual].hotspots[idx].pitch = parseFloat(pitch.toFixed(1));
+  datosEscenas[escenaActual].hotspots[idx].yaw = parseFloat(yaw.toFixed(1));
+  renderHotspots();
+}
+
+function agregarHS() {
   const esc = datosEscenas[escenaActual];
-  const navLen = (esc.hotspots || []).length;
-  if (idx < navLen) {
-    esc.hotspots[idx].pitch = pitch;
-    esc.hotspots[idx].yaw   = yaw;
-  } else {
-    esc.hotspotsLightbox[idx - navLen].pitch = pitch;
-    esc.hotspotsLightbox[idx - navLen].yaw   = yaw;
-  }
-  // Actualizar inputs
-  document.getElementById('pitch-' + idx).value = pitch;
-  document.getElementById('yaw-'   + idx).value = yaw;
-  resaltarCard(idx);
-  mostrarToast('Coordenadas capturadas');
+  esc.hotspots.push({ targetScene: "living", pitch: 0, yaw: 0, text: "Nuevo hotspot" });
+  renderHotspots();
 }
 
-// Capturar la vista central (crosshair) sin hotspot específico
-function capturarCentro() {
-  if (!visor) return;
-  const pitch = visor.getPitch().toFixed(1);
-  const yaw   = visor.getYaw().toFixed(1);
-  mostrarToast(`Pitch: ${pitch}  ·  Yaw: ${yaw}`);
+function borrarHS(idx) {
+  datosEscenas[escenaActual].hotspots.splice(idx, 1);
+  renderHotspots();
 }
 
-function resaltarCard(idx) {
-  document.querySelectorAll('.hs-card').forEach(c => c.classList.remove('active'));
-  const card = document.getElementById('card-' + idx);
-  if (card) { card.classList.add('active'); card.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
-}
-
-// ═══════════════════════════════════════════════════
-// GENERADOR DE CÓDIGO
-// ═══════════════════════════════════════════════════
 function generarCodigo() {
-  let out = 'const ESCENAS = [\n';
-  Object.values(datosEscenas).forEach((esc, i, arr) => {
-    out += `  {\n`;
-    out += `    id: "${esc.id}", label: "${esc.label}", img: "${esc.img}",\n`;
-    out += `    pitch: ${esc.pitch}, yaw: ${esc.yaw},\n`;
-
-    if (esc.hotspots && esc.hotspots.length) {
-      out += `    hotspots: [\n`;
-      esc.hotspots.forEach((h, hi, ha) => {
-        out += `      { targetScene: "${h.targetScene}", pitch: ${h.pitch}, yaw: ${h.yaw}, text: "${h.text}" }`;
-        out += hi < ha.length - 1 ? ',\n' : '\n';
-      });
-      out += `    ],\n`;
-    } else {
-      out += `    hotspots: [],\n`;
-    }
-
-    if (esc.hotspotsLightbox && esc.hotspotsLightbox.length) {
-      out += `    hotspotsLightbox: [\n`;
-      esc.hotspotsLightbox.forEach((h, hi, ha) => {
-        out += `      { pitch: ${h.pitch}, yaw: ${h.yaw}, text: "${h.text}", galeriaId: "${h.galeriaId}" }`;
-        out += hi < ha.length - 1 ? ',\n' : '\n';
-      });
-      out += `    ]\n`;
-    }
-
-    out += `  }`;
-    out += i < arr.length - 1 ? ',\n' : '\n';
+  const esc = datosEscenas[escenaActual];
+  let out = `// ${esc.label}\n`;
+  out += `hotspots: [\n`;
+  esc.hotspots.forEach(hs => {
+    out += `  { targetScene: "${hs.targetScene}", pitch: ${hs.pitch}, yaw: ${hs.yaw}, text: "${hs.text}" },\n`;
   });
-  out += '];';
-
+  out += `]`;
   document.getElementById('output-box').textContent = out;
-  const btn = document.getElementById('copy-btn');
-  btn.classList.remove('copied');
-  btn.textContent = 'Copiar código';
 }
 
 function copiarCodigo() {
-  const texto = document.getElementById('output-box').textContent;
-  if (texto.startsWith('//')) return;
-  navigator.clipboard.writeText(texto).then(() => {
+  const txt = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
     const btn = document.getElementById('copy-btn');
     btn.textContent = '✓ Copiado';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copiar código'; btn.classList.remove('copied'); }, 2000);
-    mostrarToast('Código copiado');
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
   });
 }
 
-// ═══════════════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════════════
-function mostrarToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-
-// ── INIT ──
+// Init
+const sel = document.getElementById('scene-select');
+ESCENAS.forEach(e => {
+  const opt = document.createElement('option');
+  opt.value = e.id;
+  opt.textContent = e.label;
+  sel.appendChild(opt);
+});
 cambiarEscena('living');
 </script>
+
 </body>
 </html>
