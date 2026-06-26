@@ -134,6 +134,7 @@
       margin-bottom: 4px;
     }
     .hs-card-type.nav { color: #7eb8c8; }
+    .hs-card-type.lb { color: #d4af37; }
     .hs-card-label {
       font-size: 13px;
       font-weight: 300;
@@ -263,13 +264,72 @@
 
 <script>
 const ESCENAS = [
-  { id:"living",    label:"Living / Comedor", img:"images/living.jpg",    pitch:-5, yaw:0 },
-  { id:"cocina",    label:"Cocina",           img:"images/cocina.jpg",    pitch:-5, yaw:0 },
-  { id:"hall",      label:"Hall",             img:"images/hall.jpg",      pitch:-5, yaw:0 },
-  { id:"dormitorio", label:"Dormitorio",      img:"images/dormitorio.jpg", pitch:-5, yaw:0 },
-  { id:"bano",      label:"Baño Suite",       img:"images/bano.jpg",      pitch:-5, yaw:0 },
-  { id:"lavadero",  label:"Lavadero",         img:"images/lavadero.jpg",  pitch:-5, yaw:0 },
-  { id:"jardin",    label:"Jardín",           img:"images/jardin.jpg",    pitch:0,  yaw:0 }
+  {
+    id: "living", label: "Living / Comedor", img: "images/living.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "cocina", pitch: -8.7, yaw: -2.1, text: "Cocina" },
+      { targetScene: "jardin", pitch: -4.8, yaw: -125.8, text: "Jardín" },
+      { targetScene: "lavadero", pitch: 0, yaw: 0, text: "Lavadero" }
+    ],
+    hotspotsLightbox: [
+      { pitch: -17.3, yaw: 113.6, galeriaId: "living", text: "Living · Ver vistas" }
+    ]
+  },
+  {
+    id: "cocina", label: "Cocina", img: "images/cocina.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "living", pitch: -8.8, yaw: 24.5, text: "Living" },
+      { targetScene: "lavadero", pitch: -2.9, yaw: -132.7, text: "Lavadero" },
+      { targetScene: "hall", pitch: -2.6, yaw: -108.6, text: "Hall" }
+    ],
+    hotspotsLightbox: [
+      { pitch: -13.7, yaw: 170.8, galeriaId: "cocina", text: "Cocina · Ver detalle" }
+    ]
+  },
+  {
+    id: "hall", label: "Hall", img: "images/hall.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "lavadero", pitch: 0, yaw: 0, text: "Lavadero" },
+      { targetScene: "bano", pitch: 0, yaw: 0, text: "Baño Suite" },
+      { targetScene: "dormitorio", pitch: 0, yaw: 0, text: "Dormitorio" }
+    ]
+  },
+  {
+    id: "dormitorio", label: "Dormitorio", img: "images/dormitorio.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "hall", pitch: 0, yaw: 0, text: "Hall" }
+    ]
+  },
+  {
+    id: "bano", label: "Baño Suite", img: "images/bano.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "hall", pitch: 0, yaw: 0, text: "Hall" }
+    ]
+  },
+  {
+    id: "lavadero", label: "Lavadero", img: "images/lavadero.jpg",
+    pitch: -5, yaw: 0,
+    hotspots: [
+      { targetScene: "hall", pitch: 0, yaw: 0, text: "Hall" },
+      { targetScene: "cocina", pitch: 0, yaw: 0, text: "Cocina" }
+    ]
+  },
+  {
+    id: "jardin", label: "Jardín", img: "images/jardin.jpg",
+    pitch: 0, yaw: 0,
+    hotspots: [
+      { targetScene: "living", pitch: -1.3, yaw: 105.6, text: "Living" }
+    ],
+    hotspotsLightbox: [
+      { pitch: -3.1, yaw: 81, galeriaId: "parrilla", text: "Parrilla · Ver detalle" },
+      { pitch: -0.6, yaw: -32.6, galeriaId: "piscina", text: "Piscina · Ver detalle" }
+    ]
+  }
 ];
 
 let visor = null;
@@ -279,9 +339,8 @@ let datosEscenas = {};
 ESCENAS.forEach(e => {
   datosEscenas[e.id] = {
     ...e,
-    hotspots: [
-      { targetScene: "living", pitch: 0, yaw: 0, text: "Nuevo hotspot" }
-    ]
+    hotspots: (e.hotspots || []).map(h => ({...h})),
+    hotspotsLightbox: (e.hotspotsLightbox || []).map(h => ({...h}))
   };
 });
 
@@ -319,33 +378,63 @@ function renderHotspots() {
   const esc = datosEscenas[escenaActual];
   list.innerHTML = '';
   
-  if (!esc.hotspots) esc.hotspots = [];
-  
-  esc.hotspots.forEach((hs, idx) => {
-    const card = document.createElement('div');
-    card.className = 'hs-card';
-    card.innerHTML = `
-      <div class="hs-card-type nav">${hs.targetScene || '—'}</div>
-      <div class="hs-card-label">${hs.text}</div>
-      <div class="hs-coords">
-        <div class="hs-coord-field">
-          <label>Pitch</label>
-          <input type="number" step="0.1" value="${hs.pitch.toFixed(1)}" 
-            onchange="editHS(${idx}, 'pitch', this.value)">
+  // Hotspots de navegación
+  if (esc.hotspots) {
+    esc.hotspots.forEach((hs, idx) => {
+      const card = document.createElement('div');
+      card.className = 'hs-card';
+      card.innerHTML = `
+        <div class="hs-card-type nav">${hs.targetScene || '—'}</div>
+        <div class="hs-card-label">${hs.text}</div>
+        <div class="hs-coords">
+          <div class="hs-coord-field">
+            <label>Pitch</label>
+            <input type="number" step="0.1" value="${hs.pitch.toFixed(1)}" 
+              onchange="editHS('hotspots', ${idx}, 'pitch', this.value)">
+          </div>
+          <div class="hs-coord-field">
+            <label>Yaw</label>
+            <input type="number" step="0.1" value="${hs.yaw.toFixed(1)}" 
+              onchange="editHS('hotspots', ${idx}, 'yaw', this.value)">
+          </div>
         </div>
-        <div class="hs-coord-field">
-          <label>Yaw</label>
-          <input type="number" step="0.1" value="${hs.yaw.toFixed(1)}" 
-            onchange="editHS(${idx}, 'yaw', this.value)">
+        <div class="hs-card-actions">
+          <button class="hs-action primary" onclick="capturarDesdeVisor('hotspots', ${idx})">⊕ Capturar</button>
+          <button class="hs-action" onclick="borrarHS('hotspots', ${idx})">✕ Borrar</button>
         </div>
-      </div>
-      <div class="hs-card-actions">
-        <button class="hs-action primary" onclick="capturarDesdeVisor(${idx})">⊕ Capturar</button>
-        <button class="hs-action" onclick="borrarHS(${idx})">✕ Borrar</button>
-      </div>
-    `;
-    list.appendChild(card);
-  });
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  // Hotspots Lightbox
+  if (esc.hotspotsLightbox) {
+    esc.hotspotsLightbox.forEach((hs, idx) => {
+      const card = document.createElement('div');
+      card.className = 'hs-card';
+      card.innerHTML = `
+        <div class="hs-card-type lb">${hs.galeriaId || '—'}</div>
+        <div class="hs-card-label">${hs.text}</div>
+        <div class="hs-coords">
+          <div class="hs-coord-field">
+            <label>Pitch</label>
+            <input type="number" step="0.1" value="${hs.pitch.toFixed(1)}" 
+              onchange="editHS('hotspotsLightbox', ${idx}, 'pitch', this.value)">
+          </div>
+          <div class="hs-coord-field">
+            <label>Yaw</label>
+            <input type="number" step="0.1" value="${hs.yaw.toFixed(1)}" 
+              onchange="editHS('hotspotsLightbox', ${idx}, 'yaw', this.value)">
+          </div>
+        </div>
+        <div class="hs-card-actions">
+          <button class="hs-action primary" onclick="capturarDesdeVisor('hotspotsLightbox', ${idx})">⊕ Capturar</button>
+          <button class="hs-action" onclick="borrarHS('hotspotsLightbox', ${idx})">✕ Borrar</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
 
   const addBtn = document.createElement('div');
   addBtn.style.cssText = 'padding: 10px; text-align: center; border-top: 1px solid var(--border); margin-top: auto;';
@@ -353,17 +442,18 @@ function renderHotspots() {
   list.appendChild(addBtn);
 }
 
-function editHS(idx, campo, val) {
+function editHS(tipo, idx, campo, val) {
   const esc = datosEscenas[escenaActual];
-  esc.hotspots[idx][campo] = parseFloat(val);
+  esc[tipo][idx][campo] = parseFloat(val);
 }
 
-function capturarDesdeVisor(idx) {
+function capturarDesdeVisor(tipo, idx) {
   if (!visor) return;
   const pitch = visor.getPitch();
   const yaw = visor.getYaw();
-  datosEscenas[escenaActual].hotspots[idx].pitch = parseFloat(pitch.toFixed(1));
-  datosEscenas[escenaActual].hotspots[idx].yaw = parseFloat(yaw.toFixed(1));
+  const esc = datosEscenas[escenaActual];
+  esc[tipo][idx].pitch = parseFloat(pitch.toFixed(1));
+  esc[tipo][idx].yaw = parseFloat(yaw.toFixed(1));
   renderHotspots();
 }
 
@@ -373,8 +463,8 @@ function agregarHS() {
   renderHotspots();
 }
 
-function borrarHS(idx) {
-  datosEscenas[escenaActual].hotspots.splice(idx, 1);
+function borrarHS(tipo, idx) {
+  datosEscenas[escenaActual][tipo].splice(idx, 1);
   renderHotspots();
 }
 
@@ -382,10 +472,19 @@ function generarCodigo() {
   const esc = datosEscenas[escenaActual];
   let out = `// ${esc.label}\n`;
   out += `hotspots: [\n`;
-  esc.hotspots.forEach(hs => {
-    out += `  { targetScene: "${hs.targetScene}", pitch: ${hs.pitch}, yaw: ${hs.yaw}, text: "${hs.text}" },\n`;
-  });
-  out += `]`;
+  if (esc.hotspots) {
+    esc.hotspots.forEach(hs => {
+      out += `  { targetScene: "${hs.targetScene}", pitch: ${hs.pitch}, yaw: ${hs.yaw}, text: "${hs.text}" },\n`;
+    });
+  }
+  out += `],\n`;
+  if (esc.hotspotsLightbox && esc.hotspotsLightbox.length > 0) {
+    out += `hotspotsLightbox: [\n`;
+    esc.hotspotsLightbox.forEach(hs => {
+      out += `  { pitch: ${hs.pitch}, yaw: ${hs.yaw}, galeriaId: "${hs.galeriaId}", text: "${hs.text}" },\n`;
+    });
+    out += `]\n`;
+  }
   document.getElementById('output-box').textContent = out;
 }
 
