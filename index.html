@@ -1751,6 +1751,14 @@ function cargarEscena(idEscena) {
     }
   }, 800);
 }
+
+/* ═══════════════════════════════════════════════════════
+   BLOQUEAR CLICK DERECHO
+═══════════════════════════════════════════════════════ */
+document.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  return false;
+});
 </script>
 </body>
 </html>
