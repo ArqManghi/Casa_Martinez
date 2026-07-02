@@ -39,8 +39,11 @@
       --text-faint: rgba(240,236,228,0.2);
       --border: rgba(255,255,255,0.07);
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-touch-callout:none; }
+    html { -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; -webkit-tap-highlight-color:transparent; }
+    button, a, .hs-circle, [onclick] { -webkit-tap-highlight-color:transparent; touch-action:manipulation; outline:none; }
+    button:focus, a:focus, .hs-circle:focus { outline:none; }
 
     #intro { position:fixed; inset:0; z-index:2000; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; transition:opacity 1.2s ease, visibility 1.2s; }
     #intro.out { opacity:0; visibility:hidden; pointer-events:none; }
@@ -488,7 +491,7 @@
       #mobile-panel-trigger.open #mobile-trigger-arrow { transform: rotate(180deg); }
 
       #mobile-panel-content {
-        display: none !important;
+        display: block !important;
         max-height: 0; overflow: hidden;
         transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
       }
@@ -560,8 +563,57 @@
     #lightbox.fullscreen #lb-img { max-height: 92vh; }
 
     /* ── OCULTAR ELEMENTOS MÓVILES EN DESKTOP ── */
-    #mobile-panel-trigger { display: none !important; }
-    #mobile-panel-content { display: none !important; }
+    @media (min-width: 601px) {
+      #mobile-panel-trigger { display: none !important; }
+      #mobile-panel-content { display: none !important; }
+    }
+
+    /* ── TABLET / iPAD — detecta touch real (pointer:coarse) para no afectar
+         desktop con ventana angosta, y excluye landscape de celulares (min-height) ── */
+    @media (min-width: 601px) and (pointer: coarse) and (min-height: 501px) {
+      /* Header */
+      header { padding: 14px 26px !important; }
+      .header-logo { font-size: 18px !important; letter-spacing: 3px !important; }
+      .header-center-title { font-size: 13px !important; }
+      #scene-label { font-size: 10px !important; }
+      .header-tour-label { font-size: 9px !important; }
+
+      /* Panel inferior — grid de ambientes */
+      .bottom-panel-wrap { padding: 22px 26px 0 !important; }
+      .bottom-panel-label { font-size: 8px !important; margin-bottom: 10px !important; }
+      #scenes-grid { gap: 8px !important; }
+      #scenes-grid button { padding: 7px 13px !important; font-size: 11px !important; gap: 7px !important; }
+      #scenes-grid button span { font-size: 13px !important; }
+      .footer-pie { padding: 6px 0 8px !important; }
+      .footer-logo { font-size: 11px !important; }
+      .footer-estudio-name { font-size: 8px !important; }
+
+      /* Botonera flotante (compartir / audio / fullscreen) */
+      #fullscreen-btn, #share-btn, #audio-toggle { width: 32px !important; height: 32px !important; }
+      #fullscreen-btn svg, #share-btn svg, #audio-toggle svg { width: 13px !important; height: 13px !important; }
+      #fullscreen-btn { bottom: 96px !important; left: 26px !important; }
+      #audio-toggle   { bottom: 146px !important; left: 26px !important; }
+      #share-btn      { bottom: 196px !important; left: 26px !important; }
+      #share-popup    { bottom: 196px !important; left: 74px !important; }
+      #share-copied   { bottom: 164px !important; left: 26px !important; }
+
+      /* Minimapa — más chico que en desktop */
+      #minimap { width: 260px !important; bottom: 66px !important; right: 26px !important; padding: 8px !important; }
+      #minimap-label { font-size: 7px !important; margin-bottom: 6px !important; }
+      #minimap-scene-name { font-size: 8px !important; margin-top: 6px !important; }
+
+      /* Hotspots — tamaño intermedio entre mobile y desktop */
+      .hs-circle { width: 40px !important; height: 40px !important; }
+      .hs-circle.hs-lb { width: 36px !important; height: 36px !important; }
+      .hs-circle .hs-dot { width: 11px !important; height: 11px !important; }
+      .hs-circle.hs-lb .hs-icon { width: 24px !important; height: 24px !important; }
+      .hs-circle .hs-tooltip { font-size: 9px !important; padding: 4px 8px !important; }
+
+      /* Lightbox */
+      #lb-container { width: 94vw !important; }
+      #lb-title { font-size: 22px !important; }
+      #lb-img { max-height: 68vh !important; }
+    }
 
     /* ── LANDSCAPE MOBILE ── */
     @media (max-height: 500px) and (orientation: landscape) {
