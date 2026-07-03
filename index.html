@@ -1119,13 +1119,13 @@ const PLANO_W = 3030, PLANO_H = 1052;
 function _pct(px, py, norte) { return { x: (px / PLANO_W) * 100, y: (py / PLANO_H) * 100, norte: norte }; }
 
 const MINIMAP_POS = {
-  "living":     _pct(1600,  600, 329),
-  "cocina":     _pct(1260,  730, 249),
-  "dormitorio": _pct(1800,  300, 329),
-  "bano":       _pct(1900,  320, 329),
-  "hall":       _pct(1400,  500, 329),
-  "lavadero":   _pct(800,   700, 249),
-  "jardin":     _pct(2290,  540, 249)
+  "living":        _pct(1600, 600, 359),
+  "cocina":        _pct(1260, 730, 54),
+  "hall":          _pct(869, 487, 86),
+  "dormitorio":    _pct(713, 585, 245),
+  "bano":          _pct(801, 697, 137),
+  "lavadero":      _pct(976, 683, 102),
+  "jardin":        _pct(2267, 368, 130)
 };
 
 function actualizarMinimap(idEscena) {
