@@ -1410,11 +1410,35 @@ function setMesada(id) {
   overlay.style.pointerEvents = 'all';
   
   setTimeout(() => {
-    if (visor) visor.setPanorama(data.imagen);
+    // Destruir visor existente
+    if (visor) { 
+      try { visor.destroy(); } catch(e) {} 
+      visor = null; 
+    }
+    
+    // Recrear con nueva imagen (método que funciona en Pannellum 2.5.7)
+    visor = pannellum.viewer('panorama', {
+      type: 'equirectangular',
+      panorama: data.imagen,
+      autoLoad: true,
+      autoRotate: -1.5,
+      autoRotateInactivityDelay: 4000,
+      compass: false,
+      showFullscreenCtrl: false,
+      showZoomCtrl: false,
+      pitch: -5,
+      yaw: 0,
+      hfov: (window.innerWidth <= 600 ? 55 : 100),
+      minHfov: (window.innerWidth <= 600 ? 40 : 50),
+      maxHfov: 120,
+      hotSpots: []
+    });
+    
     mesadaActual = id;
     document.querySelectorAll('.mesada-opt').forEach(b => b.classList.remove('active'));
     document.getElementById('mesada-' + id).classList.add('active');
     gaEvento('mesada_change', { scene: 'cocina', variant: id, label: data.label, project: 'Casa Martinez' });
+    
     setTimeout(() => { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }, 350);
   }, 350);
   
