@@ -762,6 +762,84 @@
     .pnlm-about { display: none !important; }
     .pnlm-controls { display: none !important; }
     .pnlm-menu-btn { display: none !important; }
+
+    /* ── SELECTOR DE MESADAS ── */
+    .mesada-btn {
+      position: fixed;
+      bottom: 55px;
+      left: 36px;
+      z-index: 200;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(8,8,8,0.55);
+      border: 1px solid rgba(200,169,110,0.3);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, border-color 0.25s, background 0.25s, transform 0.25s;
+    }
+    .mesada-btn.visible { opacity: 1; pointer-events: all; }
+    .mesada-btn:hover { border-color: var(--gold); background: rgba(200,169,110,0.12); transform: scale(1.08); }
+    .mesada-btn svg { width: 15px; height: 15px; fill: none; stroke: var(--gold); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+    .mesada-panel {
+      position: fixed;
+      bottom: 55px;
+      left: 88px;
+      z-index: 210;
+      background: rgba(8,8,8,0.92);
+      border: 1px solid rgba(200,169,110,0.3);
+      border-radius: 4px;
+      padding: 12px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-8px);
+      transition: opacity 0.25s, visibility 0.25s, transform 0.25s;
+    }
+    .mesada-panel.open { opacity: 1; visibility: visible; transform: translateX(0); }
+
+    .mesada-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(200,169,110,0.15);
+    }
+
+    .mesada-options { display: flex; flex-direction: column; gap: 6px; }
+
+    .mesada-opt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .mesada-opt:hover { border-color: rgba(200,169,110,0.5); background: rgba(200,169,110,0.05); }
+    .mesada-opt.active { border-color: var(--gold); background: rgba(200,169,110,0.12); }
+
+    .mesada-opt img { width: 40px; height: 40px; object-fit: cover; border-radius: 2px; }
+    .mesada-opt span { font-size: 10px; font-weight: 300; letter-spacing: 1.2px; color: rgba(240,236,228,0.5); font-family: 'Outfit', sans-serif; }
+    .mesada-opt.active span { color: var(--text); }
+
+    @media (max-width: 600px) {
+      .mesada-btn { bottom: 73px; left: 12px; width: 28px; height: 28px; }
+      .mesada-btn svg { width: 11px; height: 11px; }
+      .mesada-panel { display: none !important; }
+    }
 </style>
 </head>
 <body>
@@ -813,6 +891,23 @@
   </div>
   <div class="header-tour-label" style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(240,236,228,0.45);font-weight:300;">Tour Virtual</div>
 </header>
+
+<!-- SELECTOR DE MESADAS COCINA -->
+<div id="mesada-selector-wrap" style="display:none;">
+  <button id="mesada-toggle" class="mesada-btn" onclick="toggleMesadaSelector()" title="Variantes de mesada">
+    <svg viewBox="0 0 24 24">
+      <rect x="3" y="7" width="18" height="10" rx="1"/>
+      <line x1="6" y1="7" x2="6" y2="17"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="18" y1="7" x2="18" y2="17"/>
+    </svg>
+  </button>
+  <div id="mesada-panel" class="mesada-panel">
+    <div class="mesada-header">
+      <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:300;">Mesadas</span>
+      <button onclick="toggleMesadaSelector()" style="background:none;border:none;color:rgba(240,236,228,0.3);cursor:pointer;font-size:14px;">−</button>
+    </div>
+    <div id="mesada-options" class="mesada-options"></div>
+  </div>
+</div>
 
 <div id="panorama" style="width:100%;height:100vh;display:block;" oncontextmenu="return false;"></div>
 
@@ -1269,6 +1364,102 @@ const AUDIO_ESCENA_TIPO = {
 
 let audioEncendido = false;
 let audioFadeRAF = null;
+
+/* ═══════════════════════════════════════════════════════
+   SELECTOR DE MESADAS (COCINA)
+═══════════════════════════════════════════════════════ */
+const VARIANTES_COCINA = {
+  "original": {
+    label: "Original",
+    imagen: "images/cocina.jpg",
+    thumb: "images/cocina.jpg"
+  },
+  "negro": {
+    label: "Mesada Granito Negro",
+    imagen: "images/cocina_negro.jpg",
+    thumb: "images/cocina_negro.jpg"
+  },
+  "blanco": {
+    label: "Mesada Blanca",
+    imagen: "images/cocina_blanco.jpg",
+    thumb: "images/cocina_blanco.jpg"
+  }
+};
+
+let mesadaActual = "original";
+
+function inicializarMesadaSelector() {
+  const container = document.getElementById('mesada-options');
+  if (!container) return;
+  container.innerHTML = '';
+  Object.entries(VARIANTES_COCINA).forEach(([id, data]) => {
+    const btn = document.createElement('button');
+    btn.className = 'mesada-opt' + (id === mesadaActual ? ' active' : '');
+    btn.id = 'mesada-' + id;
+    btn.innerHTML = `<img src="${data.thumb}" alt="${data.label}"/><span>${data.label}</span>`;
+    btn.onclick = () => setMesada(id);
+    container.appendChild(btn);
+  });
+}
+
+function setMesada(id) {
+  if (id === mesadaActual || escenaActual !== 'cocina') return;
+  const data = VARIANTES_COCINA[id];
+  const overlay = document.getElementById('transition-overlay');
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  
+  setTimeout(() => {
+    if (visor) visor.setPanorama(data.imagen);
+    mesadaActual = id;
+    document.querySelectorAll('.mesada-opt').forEach(b => b.classList.remove('active'));
+    document.getElementById('mesada-' + id).classList.add('active');
+    gaEvento('mesada_change', { scene: 'cocina', variant: id, label: data.label, project: 'Casa Martinez' });
+    setTimeout(() => { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }, 350);
+  }, 350);
+  
+  closeMesadaPanel();
+}
+
+function toggleMesadaSelector() {
+  const panel = document.getElementById('mesada-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    setTimeout(() => document.addEventListener('click', cierreExternoMesada, { once: true }), 10);
+  }
+}
+
+function closeMesadaPanel() {
+  const panel = document.getElementById('mesada-panel');
+  if (panel) panel.classList.remove('open');
+}
+
+function cierreExternoMesada(e) {
+  const wrap = document.getElementById('mesada-selector-wrap');
+  const panel = document.getElementById('mesada-panel');
+  if (wrap && !wrap.contains(e.target)) {
+    closeMesadaPanel();
+  } else if (panel && panel.classList.contains('open')) {
+    setTimeout(() => document.addEventListener('click', cierreExternoMesada, { once: true }), 10);
+  }
+}
+
+function mostrarMesadaSelector() {
+  const wrap = document.getElementById('mesada-selector-wrap');
+  if (wrap) {
+    wrap.style.display = 'block';
+    document.getElementById('mesada-toggle').classList.add('visible');
+  }
+}
+
+function ocultarMesadaSelector() {
+  const wrap = document.getElementById('mesada-selector-wrap');
+  closeMesadaPanel();
+  if (wrap) {
+    document.getElementById('mesada-toggle').classList.remove('visible');
+    setTimeout(() => { wrap.style.display = 'none'; }, 300);
+  }
+}
 
 function audioElements() {
   return {
@@ -1778,6 +1969,16 @@ function cargarEscena(idEscena) {
   if (!escena) return;
   escenaActual = idEscena;
   document.getElementById('scene-label').textContent = escena.label;
+  
+  // Mostrar/ocultar selector de mesadas
+  if (idEscena === 'cocina') {
+    inicializarMesadaSelector();
+    mostrarMesadaSelector();
+    mesadaActual = 'original';
+  } else {
+    ocultarMesadaSelector();
+  }
+  
   gaEvento('scene_view', { scene_name: escena.label, scene_id: idEscena, project: 'Casa Martinez' });
   history.replaceState(null, '', '#' + idEscena);
   actualizarMinimap(idEscena);
@@ -1809,13 +2010,7 @@ function cargarEscena(idEscena) {
   }, 800);
 }
 
-/* ═══════════════════════════════════════════════════════
-   BLOQUEAR CLICK DERECHO
-═══════════════════════════════════════════════════════ */
-document.addEventListener('contextmenu', e => {
-  e.preventDefault();
-  return false;
-});
+
 </script>
 </body>
 </html>
