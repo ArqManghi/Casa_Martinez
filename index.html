@@ -1441,19 +1441,23 @@ function setMesada(id) {
     document.getElementById('mesada-' + id).classList.add('active');
     gaEvento('mesada_change', { scene: 'cocina', variant: id, label: data.label, project: 'Casa Martinez' });
     
-    // Reinicializar hotspots (FIX: lo que faltaba)
-    setTimeout(() => {
-      detenerOverlayLightbox();
-      if (escena && escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
-        iniciarOverlayLightbox(escena.hotspotsLightbox);
-      }
-      if (escena && escena.hotspots && escena.hotspots.length > 0) {
-        iniciarOverlayNavegacion(escena.hotspots);
-      }
-      overlay.style.opacity = '0';
-      overlay.style.pointerEvents = 'none';
-    }, 800);
-  }, 350);
+    // Reinicializar hotspots (SOLO en original)
+setTimeout(() => {
+  detenerOverlayLightbox();
+  
+  // Solo cargar hotspots si la variante es "original"
+  if (id === 'original') {
+    if (escena && escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
+      iniciarOverlayLightbox(escena.hotspotsLightbox);
+    }
+    if (escena && escena.hotspots && escena.hotspots.length > 0) {
+      iniciarOverlayNavegacion(escena.hotspots);
+    }
+  }
+  
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+}, 800);
   
   closeMesadaPanel();
 }
