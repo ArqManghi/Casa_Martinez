@@ -1406,17 +1406,19 @@ function setMesada(id) {
   if (id === mesadaActual || escenaActual !== 'cocina') return;
   const data = VARIANTES_COCINA[id];
   const overlay = document.getElementById('transition-overlay');
+  const escena = ESCENAS.find(e => e.id === escenaActual);
+  
   overlay.style.opacity = '1';
   overlay.style.pointerEvents = 'all';
   
   setTimeout(() => {
-    // Destruir visor existente
+    // Destruir visor
     if (visor) { 
       try { visor.destroy(); } catch(e) {} 
       visor = null; 
     }
     
-    // Recrear con nueva imagen (método que funciona en Pannellum 2.5.7)
+    // Recrear visor
     visor = pannellum.viewer('panorama', {
       type: 'equirectangular',
       panorama: data.imagen,
@@ -1439,7 +1441,18 @@ function setMesada(id) {
     document.getElementById('mesada-' + id).classList.add('active');
     gaEvento('mesada_change', { scene: 'cocina', variant: id, label: data.label, project: 'Casa Martinez' });
     
-    setTimeout(() => { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }, 350);
+    // Reinicializar hotspots (FIX: lo que faltaba)
+    setTimeout(() => {
+      detenerOverlayLightbox();
+      if (escena && escena.hotspotsLightbox && escena.hotspotsLightbox.length > 0) {
+        iniciarOverlayLightbox(escena.hotspotsLightbox);
+      }
+      if (escena && escena.hotspots && escena.hotspots.length > 0) {
+        iniciarOverlayNavegacion(escena.hotspots);
+      }
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+    }, 800);
   }, 350);
   
   closeMesadaPanel();
